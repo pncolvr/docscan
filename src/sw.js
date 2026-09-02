@@ -1,5 +1,5 @@
-const CACHE_NAME = "scan-shell-v1";
-const APP_SHELL = ["./", "./index.html", "./app.js", "./camera.js", "./detection.js", "./image-manipulation.js", "./styles.css", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png"];
+const CACHE_NAME = "scan-shell-v2";
+const APP_SHELL = ["./", "./index.html", "./app.js", "./camera.js", "./detection.js", "./image-manipulation.js", "./styles.css", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./jspdf.umd.min.js"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));

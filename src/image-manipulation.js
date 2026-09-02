@@ -33,6 +33,21 @@ export function createImageEditor({ resultCanvas }){
   }
   function render(){ const output = displayMat(); if (!output) return; resultCanvas.width = output.cols; resultCanvas.height = output.rows; cv.imshow(resultCanvas, output); output.delete(); }
   function setMat(mat){ if (correctedMat) correctedMat.delete(); correctedMat = mat; rotation = 0; render(); }
+  const formats = { jpeg:{ mime:"image/jpeg", extension:"jpg", quality:0.98 }, png:{ mime:"image/png", extension:"png" }, webp:{ mime:"image/webp", extension:"webp", quality:0.98 }, pdf:{ mime:"application/pdf", extension:"pdf" } };
+  function renderCanvas(){
+    const canvas = document.createElement("canvas"), output = displayMat();
+    if (!output) return null;
+    canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete();
+    return canvas;
+  }
+  function makePdf(canvas){
+    if (!window.jspdf?.jsPDF) throw new Error("PDF export is not available.");
+    const scale = 595 / Math.max(canvas.width, canvas.height);
+    const width = canvas.width * scale, height = canvas.height * scale;
+    const pdf = new window.jspdf.jsPDF({ unit:"pt", format:[width, height] });
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.98), "JPEG", 0, 0, width, height);
+    return pdf;
+  }
   async function copy(){
     const canvas = document.createElement("canvas"), output = displayMat(); if (!output) return;
     canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete();
@@ -43,11 +58,15 @@ export function createImageEditor({ resultCanvas }){
     throw new Error("Clipboard API is not available in this browser.");
   }
   function download(format = "jpeg"){
-    const formats = { jpeg:{ mime:"image/jpeg", extension:"jpg", quality:0.98 }, png:{ mime:"image/png", extension:"png" }, webp:{ mime:"image/webp", extension:"webp", quality:0.98 } };
     const selected = formats[format] || formats.jpeg;
-    const canvas = document.createElement("canvas"), output = displayMat();
-    if (!output) return;
-    canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete();
+    const canvas = renderCanvas();
+    if (!canvas) return;
+    if (format === "pdf"){
+      const pdf = makePdf(canvas), link = document.createElement("a");
+      link.href = URL.createObjectURL(pdf.output("blob"));
+      link.download = `scan-${new Date().toISOString().replace(/[:.]/g,"-")}.pdf`;
+      link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 4000); return;
+    }
     canvas.toBlob(blob => {
       if (!blob) return;
       const link = document.createElement("a");
@@ -58,12 +77,10 @@ export function createImageEditor({ resultCanvas }){
     }, selected.mime, selected.quality);
   }
   async function share(format = "jpeg"){
-    const formats = { jpeg:{ mime:"image/jpeg", extension:"jpg", quality:0.98 }, png:{ mime:"image/png", extension:"png" }, webp:{ mime:"image/webp", extension:"webp", quality:0.98 } };
     const selected = formats[format] || formats.jpeg;
-    const canvas = document.createElement("canvas"), output = displayMat();
-    if (!output) return;
-    canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete();
-    const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Could not create image blob.")), selected.mime, selected.quality));
+    const canvas = renderCanvas();
+    if (!canvas) return;
+    const blob = format === "pdf" ? makePdf(canvas).output("blob") : await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Could not create image blob.")), selected.mime, selected.quality));
     const file = new File([blob], `scan-${new Date().toISOString().replace(/[:.]/g,"-")}.${selected.extension}`, { type:selected.mime });
     if (!navigator.share || !navigator.canShare?.({ files:[file] })) throw new Error("Native image sharing is not available in this browser.");
     await navigator.share({ title:"Scanned document", files:[file] });

@@ -170,8 +170,8 @@ body{
   .iconbtn:disabled{ opacity:0.35; cursor:not-allowed; }
   .iconbtn svg{ width:20px; height:20px; }
   .iconbtn.active{ background:var(--accent); border-color:var(--accent); color:var(--bg); }
-  .iconbtn[data-tooltip]{ position:relative; }
-  .iconbtn[data-tooltip]::after{
+  [data-tooltip]{ position:relative; overflow:visible; }
+  [data-tooltip]::after{
     content:attr(data-tooltip);
     position:absolute; left:50%; bottom:calc(100% + 10px); z-index:5;
     width:max-content; max-width:210px;
@@ -181,8 +181,9 @@ body{
     opacity:0; pointer-events:none; transform:translate(-50%, 4px);
     transition:opacity .15s ease, transform .15s ease;
   }
-  .iconbtn[data-tooltip]:hover::after,
-  .iconbtn[data-tooltip].tooltip-visible::after{ opacity:1; transform:translate(-50%, 0); }
+  [data-tooltip]:hover::after,
+  [data-tooltip]:not(#btnAuto):focus-visible::after,
+  [data-tooltip].tooltip-visible::after{ opacity:1; transform:translate(-50%, 0); }
 
   .autoring{
     position:absolute; left:50%; bottom:16px; z-index:1;
