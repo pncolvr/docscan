@@ -17,7 +17,7 @@ import sys
 import os
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
-DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+DIRECTORY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
