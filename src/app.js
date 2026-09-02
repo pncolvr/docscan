@@ -9,11 +9,35 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   const badge = $("badge"), badgeText = $("badgeText"), statEdges = $("statEdges"), statRes = $("statRes");
   const deviceSelect = $("deviceSelect"), camError = $("camError"), startError = $("startError");
   const shareButton = $("btnShare");
+  const installButton = $("btnInstall");
+  let deferredInstallPrompt = null;
   let cvReady = false, capturing = false, autoCapture = true, autoStartedAt = 0;
   const autoHoldMs = 900, autoRing = $("autoring"), autoRingFg = $("autoringFg"), autoButton = $("btnAuto");
   let autoTooltipTimer = null;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
+
+  function updateInstallButton(visible){ installButton.classList.toggle("hidden", !visible); }
+
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    updateInstallButton(true);
+  });
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    updateInstallButton(false);
+  });
+  installButton.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    updateInstallButton(false);
+    if (choice.outcome === "accepted") $("headHint").textContent = "installed";
+  });
+  if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone) updateInstallButton(false);
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
 
   function setBadge(found){
     badge.classList.toggle("found", found);

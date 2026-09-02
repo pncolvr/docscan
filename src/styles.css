@@ -57,6 +57,17 @@ body{
     font-size:12px;
     color:var(--muted);
   }
+  .device__actions{ display:flex; align-items:center; gap:10px; }
+  .installbtn{
+    display:flex; align-items:center; gap:5px;
+    padding:7px 9px;
+    border:1px solid var(--border); border-radius:9px;
+    background:var(--panel-2); color:var(--text);
+    font:500 11px/1 ui-sans-serif, system-ui, sans-serif;
+    cursor:pointer;
+  }
+  .installbtn:hover{ border-color:var(--accent); color:var(--accent); }
+  .installbtn svg{ width:14px; height:14px; }
  
   .viewport{
     position:relative;
