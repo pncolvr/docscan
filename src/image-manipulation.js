@@ -57,5 +57,16 @@ export function createImageEditor({ resultCanvas }){
       setTimeout(() => URL.revokeObjectURL(link.href), 4000);
     }, selected.mime, selected.quality);
   }
-  return { setMat, rotate: () => { if (correctedMat){ rotation = (rotation + 90) % 360; render(); } }, copy, download, setMode: value => { mode = value; render(); } };
+  async function share(format = "jpeg"){
+    const formats = { jpeg:{ mime:"image/jpeg", extension:"jpg", quality:0.98 }, png:{ mime:"image/png", extension:"png" }, webp:{ mime:"image/webp", extension:"webp", quality:0.98 } };
+    const selected = formats[format] || formats.jpeg;
+    const canvas = document.createElement("canvas"), output = displayMat();
+    if (!output) return;
+    canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete();
+    const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Could not create image blob.")), selected.mime, selected.quality));
+    const file = new File([blob], `scan-${new Date().toISOString().replace(/[:.]/g,"-")}.${selected.extension}`, { type:selected.mime });
+    if (!navigator.share || !navigator.canShare?.({ files:[file] })) throw new Error("Native image sharing is not available in this browser.");
+    await navigator.share({ title:"Scanned document", files:[file] });
+  }
+  return { setMat, rotate: () => { if (correctedMat){ rotation = (rotation + 90) % 360; render(); } }, copy, download, share, setMode: value => { mode = value; render(); } };
 }

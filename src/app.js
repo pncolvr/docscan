@@ -8,6 +8,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   const video = $("video"), sampleCanvas = $("sampleCanvas"), overlaySvg = $("overlaySvg");
   const badge = $("badge"), badgeText = $("badgeText"), statEdges = $("statEdges"), statRes = $("statRes");
   const deviceSelect = $("deviceSelect"), camError = $("camError"), startError = $("startError");
+  const shareButton = $("btnShare");
   let cvReady = false, capturing = false, autoCapture = true, autoStartedAt = 0;
   const autoHoldMs = 900, autoRing = $("autoring"), autoRingFg = $("autoringFg"), autoButton = $("btnAuto");
   let autoTooltipTimer = null;
@@ -184,6 +185,19 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   });
 
   $("btnDownload").addEventListener("click", () => imageEditor.download($("formatSelect").value));
+  shareButton.hidden = !(navigator.share && navigator.canShare);
+  shareButton.addEventListener("click", async () => {
+    try {
+      await imageEditor.share($("formatSelect").value);
+      $("headHint").textContent = "shared";
+      setTimeout(() => { $("headHint").textContent = "manual"; }, 1200);
+    } catch(error){
+      if (error.name === "AbortError") return;
+      $("headHint").textContent = "share failed";
+      console.error(error.message);
+      setTimeout(() => { $("headHint").textContent = "manual"; }, 1800);
+    }
+  });
 
   const cvWatcher = setInterval(() => {
     if (!window.cv?.Mat) return;

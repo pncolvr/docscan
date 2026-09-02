@@ -255,6 +255,7 @@ body{
     gap:10px;
     margin-top:14px;
   }
+  .btn-share{ grid-column:1 / -1; }
   .btn{
     min-width:0;
     width:100%;
