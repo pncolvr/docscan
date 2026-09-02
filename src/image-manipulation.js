@@ -5,7 +5,7 @@ export function warpToQuad(mat, quad){
   const source = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x,tl.y, tr.x,tr.y, br.x,br.y, bl.x,bl.y]);
   const target = cv.matFromArray(4, 1, cv.CV_32FC2, [0,0, maxWidth,0, maxWidth,maxHeight, 0,maxHeight]);
   const transform = cv.getPerspectiveTransform(source, target), output = new cv.Mat();
-  cv.warpPerspective(mat, output, transform, new cv.Size(maxWidth, maxHeight), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+  cv.warpPerspective(mat, output, transform, new cv.Size(maxWidth, maxHeight), cv.INTER_CUBIC, cv.BORDER_CONSTANT, new cv.Scalar());
   source.delete(); target.delete(); transform.delete();
   return output;
 }
@@ -42,6 +42,20 @@ export function createImageEditor({ resultCanvas }){
     if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(canvas.toDataURL("image/png"));
     throw new Error("Clipboard API is not available in this browser.");
   }
-  function download(){ const canvas = document.createElement("canvas"), output = displayMat(); if (!output) return; canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete(); canvas.toBlob(blob => { const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `scan-${new Date().toISOString().replace(/[:.]/g,"-")}.jpg`; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 4000); }, "image/jpeg", 0.92); }
+  function download(format = "jpeg"){
+    const formats = { jpeg:{ mime:"image/jpeg", extension:"jpg", quality:0.98 }, png:{ mime:"image/png", extension:"png" }, webp:{ mime:"image/webp", extension:"webp", quality:0.98 } };
+    const selected = formats[format] || formats.jpeg;
+    const canvas = document.createElement("canvas"), output = displayMat();
+    if (!output) return;
+    canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete();
+    canvas.toBlob(blob => {
+      if (!blob) return;
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `scan-${new Date().toISOString().replace(/[:.]/g,"-")}.${selected.extension}`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+    }, selected.mime, selected.quality);
+  }
   return { setMat, rotate: () => { if (correctedMat){ rotation = (rotation + 90) % 360; render(); } }, copy, download, setMode: value => { mode = value; render(); } };
 }

@@ -8,7 +8,9 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   const video = $("video"), sampleCanvas = $("sampleCanvas"), overlaySvg = $("overlaySvg");
   const badge = $("badge"), badgeText = $("badgeText"), statEdges = $("statEdges"), statRes = $("statRes");
   const deviceSelect = $("deviceSelect"), camError = $("camError"), startError = $("startError");
-  let cvReady = false, capturing = false;
+  let cvReady = false, capturing = false, autoCapture = true, autoStartedAt = 0;
+  const autoHoldMs = 900, autoRing = $("autoring"), autoRingFg = $("autoringFg"), autoButton = $("btnAuto");
+  let autoTooltipTimer = null;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
 
@@ -24,6 +26,29 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     const circles = [quad.tl, quad.tr, quad.br, quad.bl].map(point => `<circle cx="${point.x}" cy="${point.y}" r="${width * 0.012}" fill="var(--accent)"/>`).join("");
     overlaySvg.innerHTML = `<polygon points="${points}" fill="rgba(232,163,61,0.14)" stroke="var(--accent)" stroke-width="${Math.max(width * 0.006, 2)}" stroke-linejoin="round"/>${circles}`;
   }
+
+  function resetAutoProgress(){
+    autoStartedAt = 0;
+    autoRing.classList.remove("active");
+    autoRingFg.style.strokeDashoffset = "97.4";
+  }
+
+  function updateAutoButton(){
+    const message = autoCapture ? "Auto-capture is on. Click to disable." : "Auto-capture is off. Click to enable.";
+    autoButton.classList.toggle("active", autoCapture);
+    autoButton.setAttribute("aria-pressed", String(autoCapture));
+    autoButton.title = message;
+    autoButton.setAttribute("aria-label", message);
+    autoButton.dataset.tooltip = message;
+  }
+
+  function showAutoTooltip(){
+    if (autoTooltipTimer) clearTimeout(autoTooltipTimer);
+    autoButton.classList.add("tooltip-visible");
+    autoTooltipTimer = setTimeout(() => autoButton.classList.remove("tooltip-visible"), 10000);
+  }
+
+  updateAutoButton();
 
   function showView(view){
     [viewStart, viewCamera, viewResult].forEach(section => section.classList.add("hidden"));
@@ -58,6 +83,11 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
           statEdges.textContent = quad ? "ready" : "manual";
           setBadge(!!quad);
           drawOverlay(quad, width, height);
+          if (!autoCapture || capturing || !quad){ resetAutoProgress(); return; }
+          if (!autoStartedAt){ autoStartedAt = performance.now(); autoRing.classList.add("active"); }
+          const progress = Math.min(1, (performance.now() - autoStartedAt) / autoHoldMs);
+          autoRingFg.style.strokeDashoffset = String(97.4 * (1 - progress));
+          if (progress >= 1) capture();
         }
       });
     }
@@ -68,6 +98,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     if (!status.hasMedia) throw new Error("Camera access isn't available in this browser.");
     if (!status.secure) throw new Error("Camera access needs HTTPS (or localhost). Host this file over https:// and try again.");
     showView(viewCamera);
+    showAutoTooltip();
     await camera.start();
   }
 
@@ -82,9 +113,10 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     }
   });
 
-  $("btnShutter").addEventListener("click", async () => {
+  async function capture(){
     if (capturing || !video.videoWidth || !video.videoHeight) return;
     capturing = true;
+    resetAutoProgress();
     $("btnShutter").disabled = true;
     statEdges.textContent = "detecting";
     badgeText.textContent = "detecting";
@@ -105,6 +137,13 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     showView(viewResult);
     capturing = false;
     $("btnShutter").disabled = false;
+  }
+
+  $("btnShutter").addEventListener("click", capture);
+  autoButton.addEventListener("click", () => {
+    autoCapture = !autoCapture;
+    updateAutoButton();
+    resetAutoProgress();
   });
 
   $("btnSwitch").addEventListener("click", async () => {
@@ -144,7 +183,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     imageEditor.setMode(button.dataset.mode);
   });
 
-  $("btnDownload").addEventListener("click", () => imageEditor.download());
+  $("btnDownload").addEventListener("click", () => imageEditor.download($("formatSelect").value));
 
   const cvWatcher = setInterval(() => {
     if (!window.cv?.Mat) return;

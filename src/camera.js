@@ -33,6 +33,7 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
     video.srcObject = stream;
     await video.play();
     videoTrack = stream.getVideoTracks()[0];
+    try { await videoTrack.applyConstraints({ advanced:[{ focusMode:"continuous" }] }); } catch(error) { }
     const all = await navigator.mediaDevices.enumerateDevices();
     devices = all.filter(device => device.kind === "videoinput");
     if (devices.length > 1){

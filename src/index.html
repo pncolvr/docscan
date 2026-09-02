@@ -60,7 +60,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
       </button>
       <button class="shutter" id="btnShutter" title="Capture"></button>
-      <button class="iconbtn hidden" id="btnAuto" title="Toggle auto-capture" aria-hidden="true">
+      <button class="iconbtn active" id="btnAuto" title="Auto-capture is on. Click to disable." aria-label="Auto-capture is on. Click to disable." aria-pressed="true" data-tooltip="Auto-capture is on. Click to disable.">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="autoIcon"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v6l4-3"/></svg>
       </button>
     </div>
@@ -74,21 +74,29 @@
     <div class="viewport">
       <canvas id="resultCanvas" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></canvas>
       <div class="badge mono" id="resultBadge"><span class="badge__dot" style="background:var(--good)"></span><span>captured</span></div>
+      <button class="iconbtn result-retake" id="btnRetake" title="Retake" aria-label="Retake">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.5 15"/></svg>
+      </button>
     </div>
-    <div class="enhance-row" id="enhanceRow">
-      <button data-mode="enhanced" class="active">Enhanced</button>
-      <button data-mode="original">Original</button>
-      <button data-mode="bw">B &amp; W</button>
+    <div class="enhance-tools">
+      <div class="enhance-row" id="enhanceRow">
+        <button data-mode="enhanced" class="active">Enhanced</button>
+        <button data-mode="original">Original</button>
+        <button data-mode="bw">B &amp; W</button>
+      </div>
+      <button class="iconbtn result-rotate" id="btnRotate" title="Rotate" aria-label="Rotate">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12a4 4 0 0 1 4 4v1"/><path d="M7 4l-3 3 3 3"/><path d="M20 17H8a4 4 0 0 1-4-4v-1"/><path d="M17 20l3-3-3-3"/></svg>
+      </button>
+    </div>
+    <div class="export-row">
+      <label for="formatSelect">Format</label>
+      <select id="formatSelect" class="formatselect">
+        <option value="jpeg">JPEG</option>
+        <option value="png">PNG</option>
+        <option value="webp">WebP</option>
+      </select>
     </div>
     <div class="primary-row">
-      <button class="btn" id="btnRotate">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12a4 4 0 0 1 4 4v1"/><path d="M7 4l-3 3 3 3"/><path d="M20 17H8a4 4 0 0 1-4-4v-1"/><path d="M17 20l3-3-3-3"/></svg>
-        Rotate
-      </button>
-      <button class="btn" id="btnRetake">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.5 15"/></svg>
-        Retake
-      </button>
       <button class="btn" id="btnCopy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 9.5A2.5 2.5 0 0 1 11.5 7H18a2 2 0 0 1 2 2v6.5A2.5 2.5 0 0 1 17.5 18H11.5A2.5 2.5 0 0 1 9 15.5V9.5z"/><path d="M4 10a3 3 0 0 1 3-3h6.5A2.5 2.5 0 0 0 15 4.5V4a2 2 0 0 0-2-2H7a3 3 0 0 0-3 3v6a2 2 0 0 0 2 2h1"/></svg>
         Copy
