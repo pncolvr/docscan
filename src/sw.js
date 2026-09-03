@@ -1,5 +1,5 @@
 // Bump this version whenever a cached app-shell asset changes.
-const CACHE_NAME = "scan-shell-v6";
+const CACHE_NAME = "scan-shell-v9";
 const APP_SHELL = ["./", "./index.html", "./app.js", "./camera.js", "./detection.js", "./image-manipulation.js", "./styles.css", "./styles/base.css", "./styles/layout.css", "./styles/components.css", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./jspdf.umd.min.js"];
 
 self.addEventListener("install", event => {

@@ -7,7 +7,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   const viewStart = $("view-start"), viewCamera = $("view-camera"), viewResult = $("view-result");
   const video = $("video"), sampleCanvas = $("sampleCanvas"), overlaySvg = $("overlaySvg");
   const badge = $("badge"), badgeText = $("badgeText"), statEdges = $("statEdges"), statRes = $("statRes");
-  const deviceSelect = $("deviceSelect"), camError = $("camError"), startError = $("startError");
+  const camError = $("camError"), startError = $("startError");
   const shareButton = $("btnShare");
   const installButton = $("btnInstall");
   let deferredInstallPrompt = null;
@@ -90,7 +90,6 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
 
   const camera = createCamera({
     video,
-    deviceSelect,
     isPaused: () => capturing,
     onStatus: ({ resolution }) => {
       statRes.textContent = resolution;
@@ -154,10 +153,14 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
       detectionCanvas.width = video.videoWidth;
       detectionCanvas.height = video.videoHeight;
       detectionCanvas.getContext("2d").drawImage(video, 0, 0, detectionCanvas.width, detectionCanvas.height);
-      const detectionSource = cv.imread(detectionCanvas);
-      const detected = findDocumentQuad(detectionSource);
-      quad = detected ? orderQuad(detected) : null;
-      detectionSource.delete();
+      try {
+        const detectionSource = cv.imread(detectionCanvas);
+        const detected = findDocumentQuad(detectionSource);
+        quad = detected ? orderQuad(detected) : null;
+        detectionSource.delete();
+      } catch(error){
+        quad = null;
+      }
     }
     await camera.focusOnQuad(quad, video.videoWidth, video.videoHeight);
 
@@ -184,11 +187,6 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
 
   $("btnSwitch").addEventListener("click", async () => {
     try { await camera.switchDevice(); }
-    catch(error){ camError.textContent = describeError(error); camError.classList.add("show"); }
-  });
-
-  deviceSelect.addEventListener("change", async event => {
-    try { await camera.selectDevice(event.target.value); }
     catch(error){ camError.textContent = describeError(error); camError.classList.add("show"); }
   });
 
@@ -220,7 +218,17 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   });
 
   $("btnDownload").addEventListener("click", () => imageEditor.download($("formatSelect").value));
-  shareButton.hidden = !(navigator.share && navigator.canShare);
+  function supportsNativeFileShare(){
+    if (typeof navigator.share !== "function" || typeof navigator.canShare !== "function") return false;
+    try {
+      const probe = new File([""], "scan.png", { type:"image/png" });
+      return navigator.canShare({ files:[probe] });
+    } catch(error){
+      return false;
+    }
+  }
+
+  shareButton.hidden = !supportsNativeFileShare();
   shareButton.addEventListener("click", async () => {
     try {
       await imageEditor.share($("formatSelect").value);

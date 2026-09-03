@@ -35,19 +35,23 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
     video.srcObject = stream;
     await video.play();
     videoTrack = stream.getVideoTracks()[0];
-    try { await videoTrack.applyConstraints({ advanced:[{ focusMode:"continuous" }] }); } catch(error) { }
+    if (!videoTrack) throw new Error("The camera stream did not provide a video track.");
+    const activeTrack = videoTrack;
+    try { await activeTrack.applyConstraints({ advanced:[{ focusMode:"continuous" }] }); } catch(error) { }
     await new Promise(resolve => setTimeout(resolve, 1000));
+    if (videoTrack !== activeTrack || activeTrack.readyState === "ended") return;
     autofocusReady = true;
     const all = await navigator.mediaDevices.enumerateDevices();
     devices = all.filter(device => device.kind === "videoinput");
-    if (devices.length > 1){
+    const settings = typeof activeTrack.getSettings === "function" ? activeTrack.getSettings() : {};
+    if (deviceSelect && devices.length > 1){
       deviceSelect.classList.remove("hidden");
       deviceSelect.innerHTML = devices.map((device, index) => `<option value="${index}">${device.label || "Camera " + (index + 1)}</option>`).join("");
-      const current = devices.findIndex(device => device.deviceId === videoTrack.getSettings().deviceId);
+      const current = devices.findIndex(device => device.deviceId === settings.deviceId);
       deviceIndex = current >= 0 ? current : 0;
-      deviceSelect.value = String(deviceIndex);
-    } else deviceSelect.classList.add("hidden");
-    onStatus({ resolution: `${videoTrack.getSettings().width || video.videoWidth}×${videoTrack.getSettings().height || video.videoHeight}` });
+      if (deviceSelect) deviceSelect.value = String(deviceIndex);
+    } else if (deviceSelect) deviceSelect.classList.add("hidden");
+    onStatus({ resolution: `${settings.width || video.videoWidth}×${settings.height || video.videoHeight}` });
     startDetectLoop();
   }
 
@@ -61,7 +65,7 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
   async function switchDevice(){
     if (devices.length < 2) return;
     deviceIndex = (deviceIndex + 1) % devices.length;
-    deviceSelect.value = String(deviceIndex);
+      if (deviceSelect) deviceSelect.value = String(deviceIndex);
     await start({ video: { deviceId: { exact: devices[deviceIndex].deviceId }, width:{ideal:1920}, height:{ideal:1080} }, audio:false });
   }
 
