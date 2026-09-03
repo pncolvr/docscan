@@ -1,0 +1,28 @@
+:root{
+  --bg:#14171c;
+  --panel:#1c2128;
+  --panel-2:#232933;
+  --border:#2d343f;
+  --text:#edf0f3;
+  --muted:#8a94a3;
+  --accent:#e8a33d;
+  --accent-dim:#8a6a35;
+  --blue:#5b8dee;
+  --good:#4fbf7f;
+  --bad:#e2604f;
+  --radius:14px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:radial-gradient(circle at 20% 0%, #1a2028 0%, var(--bg) 55%);
+  color:var(--text);
+  font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+button,select{font:inherit;}
+.mono{font-family:ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;}
+.display{font-family:"Space Grotesk", ui-sans-serif, system-ui, sans-serif;}
+.hidden{display:none !important;}
