@@ -6,7 +6,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   const $ = id => document.getElementById(id);
   const viewStart = $("view-start"), viewCamera = $("view-camera"), viewResult = $("view-result");
   const video = $("video"), sampleCanvas = $("sampleCanvas"), overlaySvg = $("overlaySvg");
-  const badge = $("badge"), badgeText = $("badgeText"), statEdges = $("statEdges"), statRes = $("statRes");
+  const badge = $("badge"), badgeText = $("badgeText");
   const camError = $("camError"), startError = $("startError");
   const shareButton = $("btnShare");
   const installButton = $("btnInstall");
@@ -34,7 +34,6 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     const choice = await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
     updateInstallButton(false);
-    if (choice.outcome === "accepted") $("headHint").textContent = "installed";
   });
   if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone) updateInstallButton(false);
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
@@ -91,9 +90,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   const camera = createCamera({
     video,
     isPaused: () => capturing,
-    onStatus: ({ resolution }) => {
-      statRes.textContent = resolution;
-      statEdges.textContent = "searching";
+    onStatus: () => {
       setBadge(false);
       drawOverlay(null, video.videoWidth || 0, video.videoHeight || 0);
     },
@@ -104,7 +101,6 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
         sampleCanvas,
         onDetected: (quad, width, height) => {
           frame.setQuad(quad);
-          statEdges.textContent = quad ? "ready" : "searching";
           setBadge(!!quad);
           drawOverlay(quad, width, height);
           if (!autoCapture || capturing || !quad || !camera.isAutofocusReady()){ resetAutoProgress(); return; }
@@ -142,7 +138,6 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     capturing = true;
     resetAutoProgress();
     $("btnShutter").disabled = true;
-    statEdges.textContent = "detecting";
     badgeText.textContent = "detecting";
     badge.classList.add("found");
 
@@ -200,12 +195,8 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   $("btnCopy").addEventListener("click", async () => {
     try {
       await imageEditor.copy();
-      $("headHint").textContent = "copied";
-      setTimeout(() => { $("headHint").textContent = "ready"; }, 1200);
     } catch(error){
-      $("headHint").textContent = "copy failed";
       console.error(error.message);
-      setTimeout(() => { $("headHint").textContent = "ready"; }, 1800);
     }
   });
 
@@ -232,20 +223,15 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   shareButton.addEventListener("click", async () => {
     try {
       await imageEditor.share($("formatSelect").value);
-      $("headHint").textContent = "shared";
-      setTimeout(() => { $("headHint").textContent = "ready"; }, 1200);
     } catch(error){
       if (error.name === "AbortError") return;
-      $("headHint").textContent = "share failed";
       console.error(error.message);
-      setTimeout(() => { $("headHint").textContent = "ready"; }, 1800);
     }
   });
 
   const cvWatcher = setInterval(() => {
     if (!window.cv?.Mat) return;
     cvReady = true;
-    $("headHint").textContent = "ready";
     camera.startDetectLoop();
     clearInterval(cvWatcher);
   }, 150);

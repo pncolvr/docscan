@@ -9,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="styles/base.css?v=7">
-<link rel="stylesheet" href="styles/layout.css?v=7">
-<link rel="stylesheet" href="styles/components.css?v=7">
+<link rel="stylesheet" href="styles/base.css?v=11">
+<link rel="stylesheet" href="styles/layout.css?v=11">
+<link rel="stylesheet" href="styles/components.css?v=11">
 </head>
 <body>
  
@@ -23,7 +23,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
         Install
       </button>
-      <p class="device__hint mono" id="headHint">v1</p>
     </div>
   </div>
  
@@ -52,7 +51,6 @@
       <canvas class="frame" id="sampleCanvas"></canvas>
       <svg class="overlay" id="overlaySvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
       <div class="brackets" id="brackets"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>
-      <div class="badge mono" id="badge"><span class="badge__dot"></span><span id="badgeText">searching</span></div>
       <div class="autoring" id="autoring">
         <svg viewBox="0 0 36 36">
           <circle class="bg" cx="18" cy="18" r="15.5"></circle>
@@ -60,10 +58,8 @@
         </svg>
       </div>
     </div>
- 
-    <div class="status">
-      <span>edges: <b id="statEdges">—</b></span>
-      <span id="statRes" class="mono">—</span>
+    <div class="camera-status">
+      <div class="badge mono" id="badge"><span class="badge__dot"></span><span id="badgeText">searching</span></div>
     </div>
  
     <div class="controls">
