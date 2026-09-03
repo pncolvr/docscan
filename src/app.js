@@ -41,7 +41,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
 
   function setBadge(found){
     badge.classList.toggle("found", found);
-    badgeText.textContent = found ? "document found" : "manual";
+    badgeText.textContent = found ? "document found" : "searching";
   }
 
   function drawOverlay(quad, width, height){
@@ -94,7 +94,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     isPaused: () => capturing,
     onStatus: ({ resolution }) => {
       statRes.textContent = resolution;
-      statEdges.textContent = "manual";
+      statEdges.textContent = "searching";
       setBadge(false);
       drawOverlay(null, video.videoWidth || 0, video.videoHeight || 0);
     },
@@ -105,10 +105,10 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
         sampleCanvas,
         onDetected: (quad, width, height) => {
           frame.setQuad(quad);
-          statEdges.textContent = quad ? "ready" : "manual";
+          statEdges.textContent = quad ? "ready" : "searching";
           setBadge(!!quad);
           drawOverlay(quad, width, height);
-          if (!autoCapture || capturing || !quad){ resetAutoProgress(); return; }
+          if (!autoCapture || capturing || !quad || !camera.isAutofocusReady()){ resetAutoProgress(); return; }
           if (!autoStartedAt){ autoStartedAt = performance.now(); autoRing.classList.add("active"); }
           const progress = Math.min(1, (performance.now() - autoStartedAt) / autoHoldMs);
           autoRingFg.style.strokeDashoffset = String(97.4 * (1 - progress));
@@ -147,14 +147,25 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     badgeText.textContent = "detecting";
     badge.classList.add("found");
 
+    const liveQuad = camera.getLastQuad();
+    let quad = liveQuad;
+    if (!quad){
+      const detectionCanvas = document.createElement("canvas");
+      detectionCanvas.width = video.videoWidth;
+      detectionCanvas.height = video.videoHeight;
+      detectionCanvas.getContext("2d").drawImage(video, 0, 0, detectionCanvas.width, detectionCanvas.height);
+      const detectionSource = cv.imread(detectionCanvas);
+      const detected = findDocumentQuad(detectionSource);
+      quad = detected ? orderQuad(detected) : null;
+      detectionSource.delete();
+    }
+    await camera.focusOnQuad(quad, video.videoWidth, video.videoHeight);
+
     const fullCanvas = document.createElement("canvas");
     fullCanvas.width = video.videoWidth;
     fullCanvas.height = video.videoHeight;
     fullCanvas.getContext("2d").drawImage(video, 0, 0, fullCanvas.width, fullCanvas.height);
     const source = cv.imread(fullCanvas);
-    const liveQuad = camera.getLastQuad();
-    const detected = liveQuad || findDocumentQuad(source);
-    const quad = liveQuad || (detected ? orderQuad(detected) : null);
     const output = quad ? warpToQuad(source, quad) : source.clone();
     source.delete();
     await camera.stop();
@@ -192,11 +203,11 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     try {
       await imageEditor.copy();
       $("headHint").textContent = "copied";
-      setTimeout(() => { $("headHint").textContent = "manual"; }, 1200);
+      setTimeout(() => { $("headHint").textContent = "ready"; }, 1200);
     } catch(error){
       $("headHint").textContent = "copy failed";
       console.error(error.message);
-      setTimeout(() => { $("headHint").textContent = "manual"; }, 1800);
+      setTimeout(() => { $("headHint").textContent = "ready"; }, 1800);
     }
   });
 
@@ -214,19 +225,19 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     try {
       await imageEditor.share($("formatSelect").value);
       $("headHint").textContent = "shared";
-      setTimeout(() => { $("headHint").textContent = "manual"; }, 1200);
+      setTimeout(() => { $("headHint").textContent = "ready"; }, 1200);
     } catch(error){
       if (error.name === "AbortError") return;
       $("headHint").textContent = "share failed";
       console.error(error.message);
-      setTimeout(() => { $("headHint").textContent = "manual"; }, 1800);
+      setTimeout(() => { $("headHint").textContent = "ready"; }, 1800);
     }
   });
 
   const cvWatcher = setInterval(() => {
     if (!window.cv?.Mat) return;
     cvReady = true;
-    $("headHint").textContent = "manual";
+    $("headHint").textContent = "ready";
     camera.startDetectLoop();
     clearInterval(cvWatcher);
   }, 150);

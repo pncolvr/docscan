@@ -10,6 +10,7 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
   let deviceIndex = -1;
   let detectLoopId = null;
   let lastQuad = null;
+  let autofocusReady = false;
 
   function startDetectLoop(){
     stopDetectLoop();
@@ -28,12 +29,15 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
 
   async function start(constraintsOverride){
     await stop();
+    autofocusReady = false;
     const base = constraintsOverride || { video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false };
     stream = await navigator.mediaDevices.getUserMedia(base);
     video.srcObject = stream;
     await video.play();
     videoTrack = stream.getVideoTracks()[0];
     try { await videoTrack.applyConstraints({ advanced:[{ focusMode:"continuous" }] }); } catch(error) { }
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    autofocusReady = true;
     const all = await navigator.mediaDevices.enumerateDevices();
     devices = all.filter(device => device.kind === "videoinput");
     if (devices.length > 1){
@@ -48,6 +52,7 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
   }
 
   async function stop(){
+    autofocusReady = false;
     stopDetectLoop();
     if (stream){ stream.getTracks().forEach(track => track.stop()); stream = null; }
     videoTrack = null;
@@ -65,5 +70,20 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
     await start({ video: { deviceId: { exact: devices[deviceIndex].deviceId }, width:{ideal:1920}, height:{ideal:1080} }, audio:false });
   }
 
-  return { start, stop, startDetectLoop, switchDevice, selectDevice, getLastQuad: () => lastQuad };
+  async function focusOnQuad(quad, width, height){
+    if (!videoTrack || !quad || !width || !height) return;
+    const pointsOfInterest = [{
+      x: Math.max(0, Math.min(1, (quad.tl.x + quad.tr.x + quad.br.x + quad.bl.x) / 4 / width)),
+      y: Math.max(0, Math.min(1, (quad.tl.y + quad.tr.y + quad.br.y + quad.bl.y) / 4 / height))
+    }];
+    try {
+      await videoTrack.applyConstraints({ advanced:[{ focusMode:"single-shot", pointsOfInterest }] });
+    } catch(error){
+      try { await videoTrack.applyConstraints({ advanced:[{ pointsOfInterest }] }); }
+      catch(focusError){ return; }
+    }
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  return { start, stop, startDetectLoop, switchDevice, selectDevice, getLastQuad: () => lastQuad, isAutofocusReady: () => autofocusReady, focusOnQuad };
 }
