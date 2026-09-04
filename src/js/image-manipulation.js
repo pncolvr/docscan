@@ -40,6 +40,12 @@ export function createImageEditor({ resultCanvas }){
     canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete();
     return canvas;
   }
+  function renderToCanvas(canvas){
+    const output = displayMat();
+    if (!output) return false;
+    canvas.width = output.cols; canvas.height = output.rows; cv.imshow(canvas, output); output.delete();
+    return true;
+  }
   function makePdf(canvas){
     if (!window.jspdf?.jsPDF) throw new Error("PDF export is not available.");
     const scale = 595 / Math.max(canvas.width, canvas.height);
@@ -85,5 +91,5 @@ export function createImageEditor({ resultCanvas }){
     if (!navigator.share || !navigator.canShare?.({ files:[file] })) throw new Error("Native image sharing is not available in this browser.");
     await navigator.share({ title:"Scanned document", files:[file] });
   }
-  return { setMat, rotate: () => { if (correctedMat){ rotation = (rotation + 90) % 360; render(); } }, copy, download, share, setMode: value => { mode = value; render(); } };
+  return { setMat, rotate: () => { if (correctedMat){ rotation = (rotation + 90) % 360; render(); } }, renderToCanvas, copy, download, share, setMode: value => { mode = value; render(); } };
 }

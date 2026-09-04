@@ -92,9 +92,14 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.5 15"/></svg>
           </button>
         </div>
-        <button class="iconbtn result-rotate" id="btnRotate" data-i18n-title="result.rotate" data-i18n-aria-label="result.rotate" data-i18n-tooltip="result.rotateTooltip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12a4 4 0 0 1 4 4v1"/><path d="M7 4l-3 3 3 3"/><path d="M20 17H8a4 4 0 0 1-4-4v-1"/><path d="M17 20l3-3-3-3"/></svg>
-        </button>
+        <div class="preview__actions">
+          <button class="iconbtn result-rotate" id="btnRotate" data-i18n-title="result.rotate" data-i18n-aria-label="result.rotate" data-i18n-tooltip="result.rotateTooltip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12a4 4 0 0 1 4 4v1"/><path d="M7 4l-3 3 3 3"/><path d="M20 17H8a4 4 0 0 1-4-4v-1"/><path d="M17 20l3-3-3-3"/></svg>
+          </button>
+          <button class="iconbtn result-zoom" id="btnZoom" data-i18n-title="result.zoom" data-i18n-aria-label="result.zoom" data-i18n-tooltip="result.zoomTooltip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5"/><path d="M10.8 7.8v6M7.8 10.8h6"/></svg>
+          </button>
+        </div>
       </div>
       <canvas id="resultCanvas" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></canvas>
     </div>
@@ -130,6 +135,32 @@
       </div>
     </div>
   </section>
+
+  <div class="zoom-view hidden" id="zoomView" aria-hidden="true">
+    <div class="zoom-panel" role="dialog" aria-modal="true" aria-labelledby="zoomTitle">
+      <div class="zoom-toolbar">
+        <strong id="zoomTitle" data-i18n="result.zoom">Zoom</strong>
+        <div class="zoom-actions">
+          <button class="iconbtn zoom-control" id="btnZoomOut" data-i18n-title="result.zoomOut" data-i18n-aria-label="result.zoomOut" data-i18n-tooltip="result.zoomOutTooltip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5"/><path d="M7.8 10.8h6"/></svg>
+          </button>
+          <span class="zoom-level" id="zoomLevel">100%</span>
+          <button class="iconbtn zoom-control" id="btnZoomIn" data-i18n-title="result.zoomIn" data-i18n-aria-label="result.zoomIn" data-i18n-tooltip="result.zoomInTooltip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5"/><path d="M10.8 7.8v6M7.8 10.8h6"/></svg>
+          </button>
+          <button class="iconbtn zoom-control" id="btnZoomRotate" data-i18n-title="result.rotate" data-i18n-aria-label="result.rotate" data-i18n-tooltip="result.rotateTooltip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12a4 4 0 0 1 4 4v1"/><path d="M7 4l-3 3 3 3"/><path d="M20 17H8a4 4 0 0 1-4-4v-1"/><path d="M17 20l3-3-3-3"/></svg>
+          </button>
+          <button class="iconbtn zoom-control" id="btnZoomClose" data-i18n-title="result.close" data-i18n-aria-label="result.close" data-i18n-tooltip="result.closeTooltip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="zoom-stage" id="zoomStage">
+        <canvas id="zoomCanvas"></canvas>
+      </div>
+    </div>
+  </div>
  
   <p class="foot mono" data-i18n="footer.local">runs locally in your browser - nothing is uploaded</p>
 </div>

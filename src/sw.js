@@ -1,6 +1,6 @@
 // Bump this version whenever a cached app-shell asset changes.
-const CACHE_NAME = "scan-shell-v23";
-const APP_SHELL = ["./", "./index.html", "./js/app.js", "./js/camera.js", "./js/detection.js", "./i18n/i18n.js", "./i18n/en.json", "./i18n/pt.json", "./i18n/es.json", "./styles/base.css", "./styles/layout.css", "./styles/components.css", "./manifest.webmanifest", "./assets/images/icon.svg", "./assets/images/icon-192.png", "./assets/images/icon-512.png", "./vendor/jspdf.umd.min.js"];
+const CACHE_NAME = "scan-shell-v24";
+const APP_SHELL = ["./", "./index.html", "./js/app.js", "./js/camera.js", "./js/detection.js", "./js/image-manipulation.js", "./i18n/i18n.js", "./i18n/en.json", "./i18n/pt.json", "./i18n/es.json", "./styles/base.css", "./styles/layout.css", "./styles/components.css", "./manifest.webmanifest", "./assets/images/icon.svg", "./assets/images/icon-192.png", "./assets/images/icon-512.png", "./vendor/jspdf.umd.min.js"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));

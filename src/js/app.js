@@ -18,8 +18,35 @@ import { initTranslations } from "../i18n/i18n.js";
   let cvReady = false, capturing = false, autoCapture = true, autoStartedAt = 0;
   const autoHoldMs = 900, autoRing = $("autoring"), autoRingFg = $("autoringFg"), autoButton = $("btnAuto");
   let autoTooltipTimer = null;
+  const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel"), zoomStage = $("zoomStage");
+  let zoomScale = 1;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
+
+  function renderZoomImage(){
+    imageEditor.renderToCanvas(zoomCanvas);
+    zoomCanvas.style.transform = `scale(${zoomScale})`;
+    zoomLevel.textContent = `${Math.round(zoomScale * 100)}%`;
+  }
+
+  function setZoom(value){
+    zoomScale = Math.max(0.5, Math.min(4, value));
+    zoomCanvas.style.transform = `scale(${zoomScale})`;
+    zoomLevel.textContent = `${Math.round(zoomScale * 100)}%`;
+  }
+
+  function closeZoom(){
+    zoomView.classList.add("hidden");
+    zoomView.setAttribute("aria-hidden", "true");
+  }
+
+  function openZoom(){
+    zoomScale = 1;
+    renderZoomImage();
+    zoomView.classList.remove("hidden");
+    zoomView.setAttribute("aria-hidden", "false");
+    $("btnZoomClose").focus();
+  }
 
   function updateInstallButton(visible){ installButton.classList.toggle("hidden", !visible); }
 
@@ -195,7 +222,25 @@ import { initTranslations } from "../i18n/i18n.js";
     catch(error){ camError.textContent = describeError(error); camError.classList.add("show"); }
   });
 
-  $("btnRotate").addEventListener("click", () => imageEditor.rotate());
+  $("btnRotate").addEventListener("click", () => {
+    imageEditor.rotate();
+    if (!zoomView.classList.contains("hidden")) renderZoomImage();
+  });
+  $("btnZoom").addEventListener("click", openZoom);
+  $("btnZoomClose").addEventListener("click", closeZoom);
+  $("btnZoomRotate").addEventListener("click", () => {
+    imageEditor.rotate();
+    renderZoomImage();
+  });
+  $("btnZoomIn").addEventListener("click", () => setZoom(zoomScale + 0.25));
+  $("btnZoomOut").addEventListener("click", () => setZoom(zoomScale - 0.25));
+  zoomStage.addEventListener("wheel", event => {
+    event.preventDefault();
+    setZoom(zoomScale + (event.deltaY < 0 ? 0.1 : -0.1));
+  }, { passive:false });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !zoomView.classList.contains("hidden")) closeZoom();
+  });
   $("btnRetake").addEventListener("click", async () => {
     showView(viewCamera);
     try { await camera.start(); }
@@ -216,6 +261,7 @@ import { initTranslations } from "../i18n/i18n.js";
     document.querySelectorAll("#enhanceRow button").forEach(item => item.classList.remove("active"));
     button.classList.add("active");
     imageEditor.setMode(button.dataset.mode);
+    if (!zoomView.classList.contains("hidden")) renderZoomImage();
   });
 
   $("btnDownload").addEventListener("click", () => imageEditor.download($("formatSelect").value));
