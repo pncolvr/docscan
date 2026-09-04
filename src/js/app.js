@@ -20,6 +20,7 @@ import { initTranslations } from "../i18n/i18n.js";
   let autoTooltipTimer = null;
   const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel"), zoomStage = $("zoomStage");
   let zoomScale = 1;
+  let pinchDistance = null;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
 
@@ -238,6 +239,25 @@ import { initTranslations } from "../i18n/i18n.js";
     event.preventDefault();
     setZoom(zoomScale + (event.deltaY < 0 ? 0.1 : -0.1));
   }, { passive:false });
+  function touchDistance(touches){
+    return Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
+  }
+  zoomStage.addEventListener("touchstart", event => {
+    if (event.touches.length === 2){
+      event.preventDefault();
+      pinchDistance = touchDistance(event.touches);
+    }
+  }, { passive:false });
+  zoomStage.addEventListener("touchmove", event => {
+    if (event.touches.length !== 2 || pinchDistance === null) return;
+    event.preventDefault();
+    const distance = touchDistance(event.touches);
+    setZoom(zoomScale * (distance / pinchDistance));
+    pinchDistance = distance;
+  }, { passive:false });
+  zoomStage.addEventListener("touchend", event => {
+    if (event.touches.length < 2) pinchDistance = null;
+  }, { passive:true });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !zoomView.classList.contains("hidden")) closeZoom();
   });
