@@ -1,9 +1,11 @@
 import { supported, createCamera } from "./camera.js";
 import { detectFrame, findDocumentQuad, orderQuad } from "./detection.js";
 import { warpToQuad, createImageEditor } from "./image-manipulation.js";
+import { initTranslations } from "../i18n/i18n.js";
 
-(() => {
+ (async () => {
   const $ = id => document.getElementById(id);
+  const { t } = await initTranslations({ selector: $("languageSelect") });
   const viewStart = $("view-start"), viewCamera = $("view-camera"), viewResult = $("view-result");
   const video = $("video"), sampleCanvas = $("sampleCanvas"), overlaySvg = $("overlaySvg");
   const badge = $("badge"), badgeText = $("badgeText");
@@ -40,7 +42,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
 
   function setBadge(found){
     badge.classList.toggle("found", found);
-    badgeText.textContent = found ? "document found" : "searching";
+    badgeText.textContent = found ? t("status.documentFound") : t("status.searching");
   }
 
   function drawOverlay(quad, width, height){
@@ -58,7 +60,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   }
 
   function updateAutoButton(){
-    const message = autoCapture ? "Auto-capture is on. Click to disable." : "Auto-capture is off. Click to enable.";
+    const message = autoCapture ? t("camera.autoOn") : t("camera.autoOff");
     autoButton.classList.toggle("active", autoCapture);
     autoButton.setAttribute("aria-pressed", String(autoCapture));
     autoButton.title = message;
@@ -73,6 +75,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
   }
 
   updateAutoButton();
+  $("languageSelect").addEventListener("languagechange", updateAutoButton);
 
   function showView(view){
     [viewStart, viewCamera, viewResult].forEach(section => section.classList.add("hidden"));
@@ -81,10 +84,10 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
 
   function describeError(error){
     const name = error && error.name;
-    if (name === "NotAllowedError") return "Camera permission was denied. Allow camera access in your browser settings and retry.";
-    if (name === "NotFoundError") return "No camera was found on this device.";
-    if (name === "NotReadableError") return "The camera is already in use by another app.";
-    return "Couldn't start the camera (" + (error && (error.message || name) || "unknown error") + ").";
+    if (name === "NotAllowedError") return t("camera.permissionDenied");
+    if (name === "NotFoundError") return t("camera.notFound");
+    if (name === "NotReadableError") return t("camera.notReadable");
+    return t("camera.startFailed", { message: error && (error.message || name) || "unknown error" });
   }
 
   const camera = createCamera({
@@ -115,8 +118,8 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
 
   async function startCamera(){
     const status = supported();
-    if (!status.hasMedia) throw new Error("Camera access isn't available in this browser.");
-    if (!status.secure) throw new Error("Camera access needs HTTPS (or localhost). Host this file over https:// and try again.");
+    if (!status.hasMedia) throw new Error(t("camera.unavailable"));
+    if (!status.secure) throw new Error(t("camera.insecure"));
     showView(viewCamera);
     showAutoTooltip();
     await camera.start();
@@ -138,7 +141,7 @@ import { warpToQuad, createImageEditor } from "./image-manipulation.js";
     capturing = true;
     resetAutoProgress();
     $("btnShutter").disabled = true;
-    badgeText.textContent = "detecting";
+    badgeText.textContent = t("status.detecting");
     badge.classList.add("found");
 
     const liveQuad = camera.getLastQuad();

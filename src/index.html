@@ -18,9 +18,17 @@
   <div class="device__head">
     <h1 class="display">SCAN<span>.</span></h1>
     <div class="device__actions">
-      <button class="installbtn hidden" id="btnInstall" title="Install Scan" aria-label="Install Scan" data-tooltip="Install Scan on this device for quick access.">
+      <label class="language-picker">
+        <span class="sr-only" data-i18n="language.label">Language</span>
+        <select id="languageSelect" data-i18n-aria-label="language.label" aria-label="Language">
+          <option value="en" data-i18n="language.english">English</option>
+          <option value="pt" data-i18n="language.portuguese">Português</option>
+          <option value="es" data-i18n="language.spanish">Español</option>
+        </select>
+      </label>
+      <button class="installbtn hidden" id="btnInstall" data-i18n-title="install.prompt" data-i18n-aria-label="install.prompt" data-i18n-tooltip="install.prompt">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
-        Install
+        <span data-i18n="install.button">Install</span>
       </button>
     </div>
   </div>
@@ -32,11 +40,11 @@
         <div class="start__icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2M20 8V6a2 2 0 0 0-2-2h-2M20 16v2a2 2 0 0 1-2 2h-2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>
         </div>
-        <strong class="display" style="font-size:15px;">Scan a document</strong>
-        <p>Point your camera at a page on a plain surface. We'll find the edges automatically, straighten it, and let you save the crop.</p>
-        <button class="btn primary" id="btnStart" data-tooltip="Turn on your camera to scan a document.">
+        <strong class="display" style="font-size:15px;" data-i18n="start.title">Scan a document</strong>
+        <p data-i18n="start.description">Point your camera at a page on a plain surface. We'll find the edges automatically, straighten it, and let you save the crop.</p>
+        <button class="btn primary" id="btnStart" data-i18n-tooltip="start.cameraTooltip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-          Turn on camera
+          <span data-i18n="start.camera">Turn on camera</span>
         </button>
       </div>
     </div>
@@ -58,15 +66,15 @@
       </div>
     </div>
     <div class="camera-status">
-      <div class="badge mono" id="badge"><span class="badge__dot"></span><span id="badgeText">searching</span></div>
+      <div class="badge mono" id="badge"><span class="badge__dot"></span><span id="badgeText" data-i18n="status.searching">searching</span></div>
     </div>
  
     <div class="controls">
-      <button class="iconbtn" id="btnSwitch" title="Switch camera" aria-label="Switch camera" data-tooltip="Switch between available cameras.">
+      <button class="iconbtn" id="btnSwitch" data-i18n-title="camera.switch" data-i18n-aria-label="camera.switch" data-i18n-tooltip="camera.switchTooltip">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
       </button>
-      <button class="shutter" id="btnShutter" title="Capture" aria-label="Capture" data-tooltip="Capture the document now."></button>
-      <button class="iconbtn active" id="btnAuto" title="Auto-capture is on. Click to disable." aria-label="Auto-capture is on. Click to disable." aria-pressed="true" data-tooltip="Auto-capture is on. Click to disable.">
+      <button class="shutter" id="btnShutter" data-i18n-title="camera.capture" data-i18n-aria-label="camera.capture" data-i18n-tooltip="camera.captureTooltip"></button>
+      <button class="iconbtn active" id="btnAuto" aria-pressed="true" data-i18n-title="camera.autoOn" data-i18n-aria-label="camera.autoOn" data-i18n-tooltip="camera.autoOn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="autoIcon"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v6l4-3"/></svg>
       </button>
     </div>
@@ -79,12 +87,12 @@
     <div class="viewport">
       <div class="preview__toolbar">
         <div class="preview__status">
-          <div class="badge mono" id="resultBadge"><span class="badge__dot" style="background:var(--good)"></span><span>captured</span></div>
-          <button class="iconbtn result-retake" id="btnRetake" title="Retake" aria-label="Retake">
+          <div class="badge mono" id="resultBadge"><span class="badge__dot" style="background:var(--good)"></span><span data-i18n="status.captured">captured</span></div>
+          <button class="iconbtn result-retake" id="btnRetake" data-i18n-title="result.retake" data-i18n-aria-label="result.retake">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.5 15"/></svg>
           </button>
         </div>
-        <button class="iconbtn result-rotate" id="btnRotate" title="Rotate" aria-label="Rotate" data-tooltip="Rotate the document 90 degrees.">
+        <button class="iconbtn result-rotate" id="btnRotate" data-i18n-title="result.rotate" data-i18n-aria-label="result.rotate" data-i18n-tooltip="result.rotateTooltip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12a4 4 0 0 1 4 4v1"/><path d="M7 4l-3 3 3 3"/><path d="M20 17H8a4 4 0 0 1-4-4v-1"/><path d="M17 20l3-3-3-3"/></svg>
         </button>
       </div>
@@ -92,38 +100,38 @@
     </div>
     <div class="result-footer">
       <div class="quality-options">
-        <span class="footer-label">Quality</span>
+        <span class="footer-label" data-i18n="result.quality">Quality</span>
         <div class="enhance-row" id="enhanceRow">
-          <button data-mode="enhanced" class="active" data-tooltip="Sharpen and improve the captured image.">Enhanced</button>
-          <button data-mode="original" data-tooltip="View the captured image without enhancement.">Original</button>
-          <button data-mode="bw" data-tooltip="Convert the document to black and white.">B &amp; W</button>
+          <button data-mode="enhanced" class="active" data-i18n-tooltip="result.enhancedTooltip"><span data-i18n="result.enhanced">Enhanced</span></button>
+          <button data-mode="original" data-i18n-tooltip="result.originalTooltip"><span data-i18n="result.original">Original</span></button>
+          <button data-mode="bw" data-i18n-tooltip="result.blackWhiteTooltip"><span data-i18n="result.blackWhite">B &amp; W</span></button>
         </div>
       </div>
       <div class="export-actions">
-        <label for="formatSelect">Format</label>
+        <label for="formatSelect" data-i18n="result.format">Format</label>
         <select id="formatSelect" class="formatselect">
           <option value="jpeg">JPEG</option>
           <option value="png">PNG</option>
           <option value="webp">WebP</option>
           <option value="pdf">PDF</option>
         </select>
-        <button class="btn" id="btnCopy" data-tooltip="Copy the captured image to your clipboard.">
+        <button class="btn" id="btnCopy" data-i18n-tooltip="result.copyTooltip">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 9.5A2.5 2.5 0 0 1 11.5 7H18a2 2 0 0 1 2 2v6.5A2.5 2.5 0 0 1 17.5 18H11.5A2.5 2.5 0 0 1 9 15.5V9.5z"/><path d="M4 10a3 3 0 0 1 3-3h6.5A2.5 2.5 0 0 0 15 4.5V4a2 2 0 0 0-2-2H7a3 3 0 0 0-3 3v6a2 2 0 0 0 2 2h1"/></svg>
-        Copy
+        <span data-i18n="result.copy">Copy</span>
         </button>
-        <button class="btn" id="btnDownload" data-tooltip="Save the document in the selected format.">
+        <button class="btn" id="btnDownload" data-i18n-tooltip="result.downloadTooltip">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-        Download
+        <span data-i18n="result.download">Download</span>
         </button>
-        <button class="btn btn-share primary" id="btnShare" title="Share image" data-tooltip="Share the document using your device's native share menu.">
+        <button class="btn btn-share primary" id="btnShare" data-i18n-title="result.share" data-i18n-tooltip="result.shareTooltip">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
-        Share
+        <span data-i18n="result.share">Share</span>
         </button>
       </div>
     </div>
   </section>
  
-  <p class="foot mono">runs locally in your browser · nothing is uploaded</p>
+  <p class="foot mono" data-i18n="footer.local">runs locally in your browser - nothing is uploaded</p>
 </div>
  
 <script src="https://docs.opencv.org/4.9.0/opencv.js" async></script>
