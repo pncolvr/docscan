@@ -20,7 +20,9 @@ import { initTranslations } from "../i18n/i18n.js";
   let autoTooltipTimer = null;
   const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel"), zoomStage = $("zoomStage");
   let zoomScale = 1;
-  let pinchDistance = null;
+  const activePointers = new Map();
+  let pinchStartDistance = null;
+  let pinchStartScale = 1;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
 
@@ -239,25 +241,35 @@ import { initTranslations } from "../i18n/i18n.js";
     event.preventDefault();
     setZoom(zoomScale + (event.deltaY < 0 ? 0.1 : -0.1));
   }, { passive:false });
-  function touchDistance(touches){
-    return Math.hypot(touches[1].clientX - touches[0].clientX, touches[1].clientY - touches[0].clientY);
+  function pointerDistance(){
+    const pointers = [...activePointers.values()];
+    if (pointers.length < 2) return 0;
+    return Math.hypot(pointers[1].x - pointers[0].x, pointers[1].y - pointers[0].y);
   }
-  zoomStage.addEventListener("touchstart", event => {
-    if (event.touches.length === 2){
-      event.preventDefault();
-      pinchDistance = touchDistance(event.touches);
+  zoomStage.addEventListener("pointerdown", event => {
+    activePointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+    zoomStage.setPointerCapture(event.pointerId);
+    if (activePointers.size === 2){
+      pinchStartDistance = pointerDistance();
+      pinchStartScale = zoomScale;
     }
   }, { passive:false });
-  zoomStage.addEventListener("touchmove", event => {
-    if (event.touches.length !== 2 || pinchDistance === null) return;
+  zoomStage.addEventListener("pointermove", event => {
+    if (!activePointers.has(event.pointerId)) return;
     event.preventDefault();
-    const distance = touchDistance(event.touches);
-    setZoom(zoomScale * (distance / pinchDistance));
-    pinchDistance = distance;
+    activePointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+    if (activePointers.size !== 2 || !pinchStartDistance) return;
+    setZoom(pinchStartScale * (pointerDistance() / pinchStartDistance));
   }, { passive:false });
-  zoomStage.addEventListener("touchend", event => {
-    if (event.touches.length < 2) pinchDistance = null;
-  }, { passive:true });
+  function endPointer(event){
+    activePointers.delete(event.pointerId);
+    if (activePointers.size < 2){
+      pinchStartDistance = null;
+      pinchStartScale = zoomScale;
+    }
+  }
+  zoomStage.addEventListener("pointerup", endPointer);
+  zoomStage.addEventListener("pointercancel", endPointer);
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !zoomView.classList.contains("hidden")) closeZoom();
   });
