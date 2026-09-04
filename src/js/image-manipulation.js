@@ -91,5 +91,5 @@ export function createImageEditor({ resultCanvas }){
     if (!navigator.share || !navigator.canShare?.({ files:[file] })) throw new Error("Native image sharing is not available in this browser.");
     await navigator.share({ title:"Scanned document", files:[file] });
   }
-  return { setMat, rotate: () => { if (correctedMat){ rotation = (rotation + 90) % 360; render(); } }, renderToCanvas, copy, download, share, setMode: value => { mode = value; render(); } };
+  return { setMat, rotate: (direction = 1) => { if (correctedMat){ rotation = (rotation + direction * 90 + 360) % 360; render(); } }, renderToCanvas, copy, download, share, setMode: value => { mode = value; render(); } };
 }

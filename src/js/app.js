@@ -18,11 +18,8 @@ import { initTranslations } from "../i18n/i18n.js";
   let cvReady = false, capturing = false, autoCapture = true, autoStartedAt = 0;
   const autoHoldMs = 900, autoRing = $("autoring"), autoRingFg = $("autoringFg"), autoButton = $("btnAuto");
   let autoTooltipTimer = null;
-  const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel"), zoomStage = $("zoomStage");
+  const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel");
   let zoomScale = 1;
-  const activePointers = new Map();
-  let pinchStartDistance = null;
-  let pinchStartScale = 1;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
 
@@ -225,51 +222,18 @@ import { initTranslations } from "../i18n/i18n.js";
     catch(error){ camError.textContent = describeError(error); camError.classList.add("show"); }
   });
 
-  $("btnRotate").addEventListener("click", () => {
-    imageEditor.rotate();
+  function rotateImage(direction){
+    imageEditor.rotate(direction);
     if (!zoomView.classList.contains("hidden")) renderZoomImage();
-  });
+  }
+  $("btnRotateClockwise").addEventListener("click", () => rotateImage(1));
+  $("btnRotateCounterClockwise").addEventListener("click", () => rotateImage(-1));
   $("btnZoom").addEventListener("click", openZoom);
   $("btnZoomClose").addEventListener("click", closeZoom);
-  $("btnZoomRotate").addEventListener("click", () => {
-    imageEditor.rotate();
-    renderZoomImage();
-  });
+  $("btnZoomRotateClockwise").addEventListener("click", () => rotateImage(1));
+  $("btnZoomRotateCounterClockwise").addEventListener("click", () => rotateImage(-1));
   $("btnZoomIn").addEventListener("click", () => setZoom(zoomScale + 0.25));
   $("btnZoomOut").addEventListener("click", () => setZoom(zoomScale - 0.25));
-  zoomStage.addEventListener("wheel", event => {
-    event.preventDefault();
-    setZoom(zoomScale + (event.deltaY < 0 ? 0.1 : -0.1));
-  }, { passive:false });
-  function pointerDistance(){
-    const pointers = [...activePointers.values()];
-    if (pointers.length < 2) return 0;
-    return Math.hypot(pointers[1].x - pointers[0].x, pointers[1].y - pointers[0].y);
-  }
-  zoomStage.addEventListener("pointerdown", event => {
-    activePointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
-    zoomStage.setPointerCapture(event.pointerId);
-    if (activePointers.size === 2){
-      pinchStartDistance = pointerDistance();
-      pinchStartScale = zoomScale;
-    }
-  }, { passive:false });
-  zoomStage.addEventListener("pointermove", event => {
-    if (!activePointers.has(event.pointerId)) return;
-    event.preventDefault();
-    activePointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
-    if (activePointers.size !== 2 || !pinchStartDistance) return;
-    setZoom(pinchStartScale * (pointerDistance() / pinchStartDistance));
-  }, { passive:false });
-  function endPointer(event){
-    activePointers.delete(event.pointerId);
-    if (activePointers.size < 2){
-      pinchStartDistance = null;
-      pinchStartScale = zoomScale;
-    }
-  }
-  zoomStage.addEventListener("pointerup", endPointer);
-  zoomStage.addEventListener("pointercancel", endPointer);
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !zoomView.classList.contains("hidden")) closeZoom();
   });

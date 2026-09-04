@@ -8,6 +8,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <link rel="stylesheet" href="styles/base.css?v=11">
 <link rel="stylesheet" href="styles/layout.css?v=11">
 <link rel="stylesheet" href="styles/components.css?v=11">
@@ -27,7 +28,7 @@
         </select>
       </label>
       <button class="installbtn hidden" id="btnInstall" data-i18n-title="install.prompt" data-i18n-aria-label="install.prompt" data-i18n-tooltip="install.prompt">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+          <i class="fa-solid fa-download" aria-hidden="true"></i>
         <span data-i18n="install.button">Install</span>
       </button>
     </div>
@@ -43,7 +44,7 @@
         <strong class="display" style="font-size:15px;" data-i18n="start.title">Scan a document</strong>
         <p data-i18n="start.description">Point your camera at a page on a plain surface. We'll find the edges automatically, straighten it, and let you save the crop.</p>
         <button class="btn primary" id="btnStart" data-i18n-tooltip="start.cameraTooltip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          <i class="fa-solid fa-camera" aria-hidden="true"></i>
           <span data-i18n="start.camera">Turn on camera</span>
         </button>
       </div>
@@ -71,11 +72,11 @@
  
     <div class="controls single-camera">
       <button class="iconbtn hidden" id="btnSwitch" data-i18n-title="camera.switch" data-i18n-aria-label="camera.switch" data-i18n-tooltip="camera.switchTooltip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i>
       </button>
       <button class="shutter" id="btnShutter" data-i18n-title="camera.capture" data-i18n-aria-label="camera.capture" data-i18n-tooltip="camera.captureTooltip"></button>
       <button class="iconbtn active" id="btnAuto" aria-pressed="true" data-i18n-title="camera.autoOn" data-i18n-aria-label="camera.autoOn" data-i18n-tooltip="camera.autoOn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="autoIcon"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v6l4-3"/></svg>
+          <i class="fa-solid fa-arrows-rotate" id="autoIcon" aria-hidden="true"></i>
       </button>
     </div>
  
@@ -89,15 +90,18 @@
         <div class="preview__status">
           <div class="badge mono" id="resultBadge"><span class="badge__dot" style="background:var(--good)"></span><span data-i18n="status.captured">captured</span></div>
           <button class="iconbtn result-retake" id="btnRetake" data-i18n-title="result.retake" data-i18n-aria-label="result.retake">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.5 15"/></svg>
+            <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i>
           </button>
         </div>
         <div class="preview__actions">
-          <button class="iconbtn result-rotate" id="btnRotate" data-i18n-title="result.rotate" data-i18n-aria-label="result.rotate" data-i18n-tooltip="result.rotateTooltip">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12a4 4 0 0 1 4 4v1"/><path d="M7 4l-3 3 3 3"/><path d="M20 17H8a4 4 0 0 1-4-4v-1"/><path d="M17 20l3-3-3-3"/></svg>
+          <button class="iconbtn result-rotate" id="btnRotateCounterClockwise" data-i18n-title="result.rotateCounterClockwise" data-i18n-aria-label="result.rotateCounterClockwise" data-i18n-tooltip="result.rotateCounterClockwiseTooltip">
+            <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
+          </button>
+          <button class="iconbtn result-rotate" id="btnRotateClockwise" data-i18n-title="result.rotateClockwise" data-i18n-aria-label="result.rotateClockwise" data-i18n-tooltip="result.rotateClockwiseTooltip">
+            <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
           </button>
           <button class="iconbtn result-zoom" id="btnZoom" data-i18n-title="result.zoom" data-i18n-aria-label="result.zoom" data-i18n-tooltip="result.zoomTooltip">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5"/><path d="M10.8 7.8v6M7.8 10.8h6"/></svg>
+            <i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -121,15 +125,15 @@
           <option value="pdf">PDF</option>
         </select>
         <button class="btn" id="btnCopy" data-i18n-tooltip="result.copyTooltip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 9.5A2.5 2.5 0 0 1 11.5 7H18a2 2 0 0 1 2 2v6.5A2.5 2.5 0 0 1 17.5 18H11.5A2.5 2.5 0 0 1 9 15.5V9.5z"/><path d="M4 10a3 3 0 0 1 3-3h6.5A2.5 2.5 0 0 0 15 4.5V4a2 2 0 0 0-2-2H7a3 3 0 0 0-3 3v6a2 2 0 0 0 2 2h1"/></svg>
+          <i class="fa-solid fa-copy" aria-hidden="true"></i>
         <span data-i18n="result.copy">Copy</span>
         </button>
         <button class="btn" id="btnDownload" data-i18n-tooltip="result.downloadTooltip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          <i class="fa-solid fa-download" aria-hidden="true"></i>
         <span data-i18n="result.download">Download</span>
         </button>
         <button class="btn btn-share primary" id="btnShare" data-i18n-title="result.share" data-i18n-tooltip="result.shareTooltip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+          <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
         <span data-i18n="result.share">Share</span>
         </button>
       </div>
@@ -142,17 +146,20 @@
         <strong id="zoomTitle" data-i18n="result.zoom">Zoom</strong>
         <div class="zoom-actions">
           <button class="iconbtn zoom-control" id="btnZoomOut" data-i18n-title="result.zoomOut" data-i18n-aria-label="result.zoomOut" data-i18n-tooltip="result.zoomOutTooltip">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5"/><path d="M7.8 10.8h6"/></svg>
+            <i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i>
           </button>
           <span class="zoom-level" id="zoomLevel">100%</span>
           <button class="iconbtn zoom-control" id="btnZoomIn" data-i18n-title="result.zoomIn" data-i18n-aria-label="result.zoomIn" data-i18n-tooltip="result.zoomInTooltip">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5"/><path d="M10.8 7.8v6M7.8 10.8h6"/></svg>
+            <i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i>
           </button>
-          <button class="iconbtn zoom-control" id="btnZoomRotate" data-i18n-title="result.rotate" data-i18n-aria-label="result.rotate" data-i18n-tooltip="result.rotateTooltip">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h12a4 4 0 0 1 4 4v1"/><path d="M7 4l-3 3 3 3"/><path d="M20 17H8a4 4 0 0 1-4-4v-1"/><path d="M17 20l3-3-3-3"/></svg>
+          <button class="iconbtn zoom-control" id="btnZoomRotateCounterClockwise" data-i18n-title="result.rotateCounterClockwise" data-i18n-aria-label="result.rotateCounterClockwise" data-i18n-tooltip="result.rotateCounterClockwiseTooltip">
+            <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
+          </button>
+          <button class="iconbtn zoom-control" id="btnZoomRotateClockwise" data-i18n-title="result.rotateClockwise" data-i18n-aria-label="result.rotateClockwise" data-i18n-tooltip="result.rotateClockwiseTooltip">
+            <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
           </button>
           <button class="iconbtn zoom-control" id="btnZoomClose" data-i18n-title="result.close" data-i18n-aria-label="result.close" data-i18n-tooltip="result.closeTooltip">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </button>
         </div>
       </div>
