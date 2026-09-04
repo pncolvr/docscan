@@ -43,6 +43,10 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
     autofocusReady = true;
     const all = await navigator.mediaDevices.enumerateDevices();
     devices = all.filter(device => device.kind === "videoinput");
+    if (!devices.length){
+      await stop();
+      throw Object.assign(new Error("No camera found."), { name: "NotFoundError" });
+    }
     const settings = typeof activeTrack.getSettings === "function" ? activeTrack.getSettings() : {};
     if (deviceSelect && devices.length > 1){
       deviceSelect.classList.remove("hidden");
@@ -51,7 +55,7 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
       deviceIndex = current >= 0 ? current : 0;
       if (deviceSelect) deviceSelect.value = String(deviceIndex);
     } else if (deviceSelect) deviceSelect.classList.add("hidden");
-    onStatus({ resolution: `${settings.width || video.videoWidth}×${settings.height || video.videoHeight}` });
+    onStatus({ deviceCount: devices.length, resolution: `${settings.width || video.videoWidth}×${settings.height || video.videoHeight}` });
     startDetectLoop();
   }
 

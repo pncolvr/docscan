@@ -8,8 +8,10 @@ import { initTranslations } from "../i18n/i18n.js";
   const { t } = await initTranslations({ selector: $("languageSelect") });
   const viewStart = $("view-start"), viewCamera = $("view-camera"), viewResult = $("view-result");
   const video = $("video"), sampleCanvas = $("sampleCanvas"), overlaySvg = $("overlaySvg");
+  const controls = document.querySelector(".controls");
   const badge = $("badge"), badgeText = $("badgeText");
   const camError = $("camError"), startError = $("startError");
+  const switchButton = $("btnSwitch");
   const shareButton = $("btnShare");
   const installButton = $("btnInstall");
   let deferredInstallPrompt = null;
@@ -93,7 +95,10 @@ import { initTranslations } from "../i18n/i18n.js";
   const camera = createCamera({
     video,
     isPaused: () => capturing,
-    onStatus: () => {
+    onStatus: ({ deviceCount = 0 } = {}) => {
+      const hasMultipleCameras = deviceCount > 1;
+      switchButton.classList.toggle("hidden", !hasMultipleCameras);
+      controls.classList.toggle("single-camera", !hasMultipleCameras);
       setBadge(false);
       drawOverlay(null, video.videoWidth || 0, video.videoHeight || 0);
     },
@@ -120,6 +125,8 @@ import { initTranslations } from "../i18n/i18n.js";
     const status = supported();
     if (!status.hasMedia) throw new Error(t("camera.unavailable"));
     if (!status.secure) throw new Error(t("camera.insecure"));
+    switchButton.classList.add("hidden");
+    controls.classList.add("single-camera");
     showView(viewCamera);
     showAutoTooltip();
     await camera.start();
@@ -131,7 +138,7 @@ import { initTranslations } from "../i18n/i18n.js";
       await startCamera();
     } catch(error){
       showView(viewStart);
-      startError.textContent = error.message.includes("Camera access") ? error.message : describeError(error);
+      startError.textContent = error.name === "NotFoundError" || error.name === "NotAllowedError" || error.name === "NotReadableError" ? describeError(error) : error.message;
       startError.classList.add("show");
     }
   });
@@ -183,7 +190,7 @@ import { initTranslations } from "../i18n/i18n.js";
     resetAutoProgress();
   });
 
-  $("btnSwitch").addEventListener("click", async () => {
+  switchButton.addEventListener("click", async () => {
     try { await camera.switchDevice(); }
     catch(error){ camError.textContent = describeError(error); camError.classList.add("show"); }
   });

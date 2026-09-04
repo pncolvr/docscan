@@ -1,6 +1,6 @@
 .installbtn{display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid var(--border);border-radius:9px;background:var(--panel-2);color:var(--text);font:500 11px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;}
 .language-picker{display:flex;align-items:center;color:var(--muted);font-size:11px;}
-.language-picker select{appearance:none;width:96px;padding:7px 0;border:0;background:transparent;color:var(--muted);font:inherit;cursor:pointer;}
+.language-picker select{appearance:none;width:96px;padding:7px 0;border:0;background:transparent;color:var(--muted);font:inherit;text-align:right;cursor:pointer;}
 .language-picker select option{background:var(--panel-2);color:var(--text);}
 .language-picker select:hover,.language-picker select:focus-visible{color:var(--text);}
 .language-picker select:focus-visible{outline:0;}
