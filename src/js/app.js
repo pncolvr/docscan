@@ -12,7 +12,6 @@ import { initTranslations } from "../i18n/i18n.js";
   const badge = $("badge"), badgeText = $("badgeText");
   const camError = $("camError"), startError = $("startError");
   const switchButton = $("btnSwitch");
-  const shareButton = $("btnShare");
   const installButton = $("btnInstall");
   let deferredInstallPrompt = null;
   let cvReady = false, capturing = false, autoCapture = true, autoStartedAt = 0;
@@ -20,6 +19,7 @@ import { initTranslations } from "../i18n/i18n.js";
   let autoTooltipTimer = null;
   const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel");
   let zoomScale = 1;
+  let documents = [], selectedDocumentIndex = 0;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
 
@@ -46,6 +46,39 @@ import { initTranslations } from "../i18n/i18n.js";
     zoomView.classList.remove("hidden");
     zoomView.setAttribute("aria-hidden", "false");
     $("btnZoomClose").focus();
+  }
+
+  function syncDocumentModes(){
+    const active = documents[selectedDocumentIndex];
+    document.querySelectorAll("#enhanceRow button").forEach(button => button.classList.toggle("active", button.dataset.mode === active?.mode));
+  }
+
+  function updateDocumentControls(){
+    const select = $("documentSelect");
+    select.innerHTML = documents.map((documentState, index) => `<option value="${index}">${t("documents.item", { number:index + 1 })}</option>`).join("");
+    select.value = String(selectedDocumentIndex);
+    const disabled = documents.length < 2;
+    $("btnMoveUp").disabled = disabled || selectedDocumentIndex === 0;
+    $("btnMoveDown").disabled = disabled || selectedDocumentIndex === documents.length - 1;
+    $("btnDeleteDocument").disabled = documents.length < 1;
+    $("singleExport").classList.toggle("hidden", documents.length !== 1);
+    $("btnExportPdf").classList.toggle("hidden", documents.length < 2);
+    $("btnSharePdf").classList.toggle("hidden", documents.length < 2 || !supportsNativeFileShare());
+    syncDocumentModes();
+  }
+
+  function selectDocument(index){
+    if (!documents[index]) return;
+    selectedDocumentIndex = Number(index);
+    imageEditor.setDocument(documents[selectedDocumentIndex]);
+    updateDocumentControls();
+    if (!zoomView.classList.contains("hidden")) renderZoomImage();
+  }
+
+  async function addDocument(){
+    closeZoom();
+    try { await startCamera(); }
+    catch(error){ camError.textContent = describeError(error); camError.classList.add("show"); }
   }
 
   function updateInstallButton(visible){ installButton.classList.toggle("hidden", !visible); }
@@ -204,7 +237,11 @@ import { initTranslations } from "../i18n/i18n.js";
     const output = quad ? warpToQuad(source, quad) : source.clone();
     source.delete();
     await camera.stop();
-    imageEditor.setMat(output);
+    const documentState = { mat:output, mode:"enhanced", rotation:0 };
+    documents.push(documentState);
+    selectedDocumentIndex = documents.length - 1;
+    imageEditor.setDocument(documentState);
+    updateDocumentControls();
     showView(viewResult);
     capturing = false;
     $("btnShutter").disabled = false;
@@ -237,49 +274,63 @@ import { initTranslations } from "../i18n/i18n.js";
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !zoomView.classList.contains("hidden")) closeZoom();
   });
-  $("btnRetake").addEventListener("click", async () => {
-    showView(viewCamera);
-    try { await camera.start(); }
-    catch(error){ camError.textContent = describeError(error); camError.classList.add("show"); }
+  $("documentSelect").addEventListener("change", event => selectDocument(event.target.value));
+  $("btnAddDocument").addEventListener("click", addDocument);
+  $("btnMoveUp").addEventListener("click", () => {
+    if (selectedDocumentIndex < 1) return;
+    [documents[selectedDocumentIndex - 1], documents[selectedDocumentIndex]] = [documents[selectedDocumentIndex], documents[selectedDocumentIndex - 1]];
+    selectedDocumentIndex -= 1;
+    updateDocumentControls();
+    $("documentSelect").value = String(selectedDocumentIndex);
   });
-
-  $("btnCopy").addEventListener("click", async () => {
-    try {
-      await imageEditor.copy();
-    } catch(error){
-      console.error(error.message);
+  $("btnMoveDown").addEventListener("click", () => {
+    if (selectedDocumentIndex >= documents.length - 1) return;
+    [documents[selectedDocumentIndex + 1], documents[selectedDocumentIndex]] = [documents[selectedDocumentIndex], documents[selectedDocumentIndex + 1]];
+    selectedDocumentIndex += 1;
+    updateDocumentControls();
+    $("documentSelect").value = String(selectedDocumentIndex);
+  });
+  $("btnDeleteDocument").addEventListener("click", () => {
+    const removed = documents.splice(selectedDocumentIndex, 1)[0];
+    removed?.mat.delete();
+    if (!documents.length){
+      showView(viewStart);
+      return;
     }
+    selectedDocumentIndex = Math.min(selectedDocumentIndex, documents.length - 1);
+    imageEditor.setDocument(documents[selectedDocumentIndex]);
+    updateDocumentControls();
   });
 
   $("enhanceRow").addEventListener("click", event => {
     const button = event.target.closest("button[data-mode]");
     if (!button) return;
-    document.querySelectorAll("#enhanceRow button").forEach(item => item.classList.remove("active"));
-    button.classList.add("active");
     imageEditor.setMode(button.dataset.mode);
+    syncDocumentModes();
     if (!zoomView.classList.contains("hidden")) renderZoomImage();
   });
 
+  $("btnCopy").addEventListener("click", async () => {
+    try { await imageEditor.copy(); }
+    catch(error){ console.error(error.message); }
+  });
   $("btnDownload").addEventListener("click", () => imageEditor.download($("formatSelect").value));
   function supportsNativeFileShare(){
     if (typeof navigator.share !== "function" || typeof navigator.canShare !== "function") return false;
-    try {
-      const probe = new File([""], "scan.png", { type:"image/png" });
-      return navigator.canShare({ files:[probe] });
-    } catch(error){
-      return false;
-    }
+    try { return navigator.canShare({ files:[new File([""], "scan.png", { type:"image/png" })] }); }
+    catch(error){ return false; }
   }
-
-  shareButton.hidden = !supportsNativeFileShare();
-  shareButton.addEventListener("click", async () => {
-    try {
-      await imageEditor.share($("formatSelect").value);
-    } catch(error){
-      if (error.name === "AbortError") return;
-      console.error(error.message);
-    }
+  $("btnShare").classList.toggle("hidden", !supportsNativeFileShare());
+  $("btnShare").addEventListener("click", async () => {
+    try { await imageEditor.share($("formatSelect").value); }
+    catch(error){ if (error.name !== "AbortError") console.error(error.message); }
   });
+  $("btnSharePdf").addEventListener("click", async () => {
+    try { await imageEditor.sharePdf(documents); }
+    catch(error){ if (error.name !== "AbortError") console.error(error.message); }
+  });
+  $("btnExportPdf").addEventListener("click", () => imageEditor.downloadPdf(documents));
+  $("languageSelect").addEventListener("languagechange", updateDocumentControls);
 
   const cvWatcher = setInterval(() => {
     if (!window.cv?.Mat) return;

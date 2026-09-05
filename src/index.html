@@ -89,8 +89,20 @@
       <div class="preview__toolbar">
         <div class="preview__status">
           <div class="badge mono" id="resultBadge"><span class="badge__dot" style="background:var(--good)"></span><span data-i18n="status.captured">captured</span></div>
-          <button class="iconbtn result-retake" id="btnRetake" data-i18n-title="result.retake" data-i18n-aria-label="result.retake">
-            <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i>
+        </div>
+        <div class="document-controls">
+          <button class="iconbtn document-action" id="btnMoveUp" data-i18n-title="documents.moveUp" data-i18n-aria-label="documents.moveUp" data-i18n-tooltip="documents.moveUpTooltip">
+            <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+          </button>
+          <select id="documentSelect" class="document-select" data-i18n-aria-label="documents.select" aria-label="Select document"></select>
+          <button class="iconbtn document-action" id="btnMoveDown" data-i18n-title="documents.moveDown" data-i18n-aria-label="documents.moveDown" data-i18n-tooltip="documents.moveDownTooltip">
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <button class="iconbtn document-action" id="btnDeleteDocument" data-i18n-title="documents.delete" data-i18n-aria-label="documents.delete" data-i18n-tooltip="documents.deleteTooltip">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          </button>
+          <button class="iconbtn document-action" id="btnAddDocument" data-i18n-title="documents.add" data-i18n-aria-label="documents.add" data-i18n-tooltip="documents.addTooltip">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
           </button>
         </div>
         <div class="preview__actions">
@@ -117,24 +129,25 @@
         </div>
       </div>
       <div class="export-actions">
-        <label for="formatSelect" data-i18n="result.format">Format</label>
-        <select id="formatSelect" class="formatselect">
-          <option value="jpeg">JPEG</option>
-          <option value="png">PNG</option>
-          <option value="webp">WebP</option>
-          <option value="pdf">PDF</option>
-        </select>
-        <button class="btn" id="btnCopy" data-i18n-tooltip="result.copyTooltip">
-          <i class="fa-solid fa-copy" aria-hidden="true"></i>
-        <span data-i18n="result.copy">Copy</span>
+        <div class="single-export hidden" id="singleExport">
+          <label for="formatSelect" data-i18n="result.format">Format</label>
+          <select id="formatSelect" class="formatselect">
+            <option value="jpeg">JPEG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+            <option value="pdf">PDF</option>
+          </select>
+          <button class="btn" id="btnCopy" data-i18n-tooltip="result.copyTooltip"><i class="fa-solid fa-copy" aria-hidden="true"></i><span data-i18n="result.copy">Copy</span></button>
+          <button class="btn" id="btnDownload" data-i18n-tooltip="result.downloadTooltip"><i class="fa-solid fa-download" aria-hidden="true"></i><span data-i18n="result.download">Download</span></button>
+          <button class="btn btn-share primary hidden" id="btnShare" data-i18n-title="result.share" data-i18n-tooltip="result.shareTooltip"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span data-i18n="result.share">Share</span></button>
+        </div>
+        <button class="btn primary hidden" id="btnExportPdf" data-i18n-tooltip="documents.exportTooltip">
+          <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+          <span data-i18n="documents.export">Export PDF</span>
         </button>
-        <button class="btn" id="btnDownload" data-i18n-tooltip="result.downloadTooltip">
-          <i class="fa-solid fa-download" aria-hidden="true"></i>
-        <span data-i18n="result.download">Download</span>
-        </button>
-        <button class="btn btn-share primary" id="btnShare" data-i18n-title="result.share" data-i18n-tooltip="result.shareTooltip">
+        <button class="btn primary hidden" id="btnSharePdf" data-i18n-title="documents.share" data-i18n-tooltip="documents.shareTooltip">
           <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
-        <span data-i18n="result.share">Share</span>
+          <span data-i18n="documents.share">Share PDF</span>
         </button>
       </div>
     </div>
@@ -173,7 +186,7 @@
 </div>
  
 <script src="https://docs.opencv.org/4.9.0/opencv.js" async></script>
-<script src="vendor/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
