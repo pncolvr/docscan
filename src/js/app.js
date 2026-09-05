@@ -169,6 +169,10 @@ import { initTranslations } from "../i18n/i18n.js";
   updateAutoButton();
   $("languageSelect").addEventListener("languagechange", () => {
     updateAutoButton();
+    if (deletePending){
+      deleteButton.dataset.tooltip = t("documents.deleteConfirm");
+      tooltips.setState(deleteButton, t("documents.deleteConfirm"), "persistent");
+    }
     tooltips.refresh();
   });
 

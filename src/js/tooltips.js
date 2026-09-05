@@ -81,6 +81,10 @@ export function initializeTooltips(){
 
   return {
     refresh(){
+      document.querySelectorAll("[data-i18n-tooltip]").forEach(element => {
+        const state = states.get(element);
+        if (state) state.content = element.dataset.tooltip || "";
+      });
       [persistentTooltip, hoverTooltip].forEach(state => {
         if (!state.reference) return;
         const content = states.get(state.reference)?.content || state.reference.dataset.tooltip || "";
