@@ -14,6 +14,8 @@ import { initTranslations } from "../i18n/i18n.js";
   const switchButton = $("btnSwitch");
   const installButton = $("btnInstall");
   let deferredInstallPrompt = null;
+  const AUTO_CAPTURE_KEY = "scan-auto-capture";
+  const AUTO_TOOLTIP_KEY = "scan-auto-tooltip-shown";
   let cvReady = false, capturing = false, autoCapture = true, autoStartedAt = 0;
   const autoHoldMs = 900, autoRing = $("autoring"), autoRingFg = $("autoringFg"), autoButton = $("btnAuto");
   let autoTooltipTimer = null;
@@ -22,6 +24,11 @@ import { initTranslations } from "../i18n/i18n.js";
   let documents = [], selectedDocumentIndex = 0;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
+
+  try {
+    const savedAutoCapture = localStorage.getItem(AUTO_CAPTURE_KEY);
+    if (savedAutoCapture !== null) autoCapture = savedAutoCapture === "true";
+  } catch(error){ }
 
   function renderZoomImage(){
     imageEditor.renderToCanvas(zoomCanvas);
@@ -128,9 +135,14 @@ import { initTranslations } from "../i18n/i18n.js";
     autoButton.title = message;
     autoButton.setAttribute("aria-label", message);
     autoButton.dataset.tooltip = message;
+    try { localStorage.setItem(AUTO_CAPTURE_KEY, String(autoCapture)); } catch(error){ }
   }
 
   function showAutoTooltip(){
+    try {
+      if (localStorage.getItem(AUTO_TOOLTIP_KEY) === "true") return;
+      localStorage.setItem(AUTO_TOOLTIP_KEY, "true");
+    } catch(error){ }
     if (autoTooltipTimer) clearTimeout(autoTooltipTimer);
     autoButton.classList.add("tooltip-visible");
     autoTooltipTimer = setTimeout(() => autoButton.classList.remove("tooltip-visible"), 10000);
