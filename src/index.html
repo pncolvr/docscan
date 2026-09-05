@@ -104,7 +104,7 @@
       </button>
       <div class="document-delete-controls">
         <button class="iconbtn result-zoom" id="btnZoom" data-tooltip-placement="left" data-i18n-title="result.zoom" data-i18n-aria-label="result.zoom" data-i18n-tooltip="result.zoomTooltip">
-          <i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i>
+          <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
         </button>
         <button class="iconbtn document-delete" id="btnDeleteDocument" data-i18n-title="documents.delete" data-i18n-aria-label="documents.delete" data-i18n-tooltip="documents.deleteTooltip">
           <i class="fa-solid fa-trash" aria-hidden="true"></i>
@@ -157,11 +157,6 @@
     <div class="zoom-panel" role="dialog" aria-modal="true" aria-labelledby="zoomTitle">
       <div class="zoom-toolbar">
         <strong id="zoomTitle" data-i18n="result.zoom">Zoom</strong>
-        <div class="zoom-enhance-row" id="zoomEnhanceRow">
-          <button data-mode="enhanced" class="active" data-i18n-tooltip="result.enhancedTooltip"><span data-i18n="result.enhanced">Enhanced</span></button>
-          <button data-mode="original" data-i18n-tooltip="result.originalTooltip"><span data-i18n="result.original">Original</span></button>
-          <button data-mode="bw" data-i18n-tooltip="result.blackWhiteTooltip"><span data-i18n="result.blackWhite">B &amp; W</span></button>
-        </div>
         <div class="zoom-actions">
           <button class="iconbtn zoom-control" id="btnZoomOut" data-i18n-title="result.zoomOut" data-i18n-aria-label="result.zoomOut" data-i18n-tooltip="result.zoomOutTooltip">
             <i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i>
@@ -183,6 +178,13 @@
       </div>
       <div class="zoom-stage" id="zoomStage">
         <canvas id="zoomCanvas"></canvas>
+      </div>
+      <div class="zoom-footer">
+        <div class="zoom-enhance-row" id="zoomEnhanceRow">
+          <button data-mode="enhanced" class="active" data-i18n-tooltip="result.enhancedTooltip"><span data-i18n="result.enhanced">Enhanced</span></button>
+          <button data-mode="original" data-i18n-tooltip="result.originalTooltip"><span data-i18n="result.original">Original</span></button>
+          <button data-mode="bw" data-i18n-tooltip="result.blackWhiteTooltip"><span data-i18n="result.blackWhite">B &amp; W</span></button>
+        </div>
       </div>
     </div>
   </div>
