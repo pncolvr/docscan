@@ -21,6 +21,7 @@ body{
   color:var(--text);
   font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-tap-highlight-color:transparent;
+  touch-action:none;
 }
 button,select{font:inherit;}
 .mono{font-family:ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;}

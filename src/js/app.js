@@ -22,8 +22,12 @@ import { initTranslations } from "../i18n/i18n.js";
   const autoHoldMs = 900, autoRing = $("autoring"), autoRingFg = $("autoringFg"), autoButton = $("btnAuto");
   const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel");
   let zoomScale = 1;
+  let panX = 0, panY = 0;
   let documents = [], selectedDocumentIndex = 0;
   let deletePending = false;
+  const activeZoomPointers = new Map();
+  let pinchStartDistance = 0;
+  let pinchStartScale = 1;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
 
@@ -34,14 +38,27 @@ import { initTranslations } from "../i18n/i18n.js";
 
   function renderZoomImage(){
     imageEditor.renderToCanvas(zoomCanvas);
-    zoomCanvas.style.transform = `scale(${zoomScale})`;
+    zoomCanvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
     zoomLevel.textContent = `${Math.round(zoomScale * 100)}%`;
+    updateZoomButtons();
   }
 
   function setZoom(value){
     zoomScale = Math.max(0.5, Math.min(4, value));
-    zoomCanvas.style.transform = `scale(${zoomScale})`;
+    zoomCanvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
     zoomLevel.textContent = `${Math.round(zoomScale * 100)}%`;
+    updateZoomButtons();
+  }
+
+  function updateZoomButtons(){
+    $("btnZoomOut").disabled = zoomScale <= 0.5;
+    $("btnZoomIn").disabled = zoomScale >= 4;
+  }
+
+  function getPinchDistance(){
+    const pointers = [...activeZoomPointers.values()];
+    if (pointers.length < 2) return 0;
+    return Math.hypot(pointers[1].x - pointers[0].x, pointers[1].y - pointers[0].y);
   }
 
   function closeZoom(){
@@ -51,6 +68,7 @@ import { initTranslations } from "../i18n/i18n.js";
 
   function openZoom(){
     zoomScale = 1;
+    panX = 0; panY = 0;
     renderZoomImage();
     zoomView.classList.remove("hidden");
     zoomView.setAttribute("aria-hidden", "false");
@@ -59,7 +77,7 @@ import { initTranslations } from "../i18n/i18n.js";
 
   function syncDocumentModes(){
     const active = documents[selectedDocumentIndex];
-    document.querySelectorAll("#enhanceRow button").forEach(button => button.classList.toggle("active", button.dataset.mode === active?.mode));
+    document.querySelectorAll("#enhanceRow button, #zoomEnhanceRow button").forEach(button => button.classList.toggle("active", button.dataset.mode === active?.mode));
   }
 
   function updateDocumentControls(){
@@ -286,6 +304,40 @@ import { initTranslations } from "../i18n/i18n.js";
   $("btnZoomRotateCounterClockwise").addEventListener("click", () => rotateImage(-1));
   $("btnZoomIn").addEventListener("click", () => setZoom(zoomScale + 0.25));
   $("btnZoomOut").addEventListener("click", () => setZoom(zoomScale - 0.25));
+  const zoomStage = $("zoomStage");
+  zoomStage.addEventListener("pointerdown", event => {
+    activeZoomPointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+    zoomStage.setPointerCapture(event.pointerId);
+    if (activeZoomPointers.size === 2){
+      pinchStartDistance = getPinchDistance();
+      pinchStartScale = zoomScale;
+    }
+  });
+  zoomStage.addEventListener("pointermove", event => {
+    if (!activeZoomPointers.has(event.pointerId)) return;
+    event.preventDefault();
+    const previous = activeZoomPointers.get(event.pointerId);
+    activeZoomPointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+    if (activeZoomPointers.size === 1){
+      panX += event.clientX - previous.x;
+      panY += event.clientY - previous.y;
+      zoomCanvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
+      return;
+    }
+    if (activeZoomPointers.size === 2 && pinchStartDistance){
+      setZoom(pinchStartScale * getPinchDistance() / pinchStartDistance);
+    }
+  });
+  zoomStage.addEventListener("wheel", event => {
+    event.preventDefault();
+    setZoom(zoomScale + (event.deltaY < 0 ? 0.1 : -0.1));
+  }, { passive:false });
+  function endZoomPointer(event){
+    activeZoomPointers.delete(event.pointerId);
+    if (activeZoomPointers.size < 2) pinchStartDistance = 0;
+  }
+  zoomStage.addEventListener("pointerup", endZoomPointer);
+  zoomStage.addEventListener("pointercancel", endZoomPointer);
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !zoomView.classList.contains("hidden")) closeZoom();
   });
@@ -339,13 +391,13 @@ import { initTranslations } from "../i18n/i18n.js";
     updateDocumentControls();
   });
 
-  $("enhanceRow").addEventListener("click", event => {
+  [$("enhanceRow"), $("zoomEnhanceRow")].forEach(row => row.addEventListener("click", event => {
     const button = event.target.closest("button[data-mode]");
     if (!button) return;
     imageEditor.setMode(button.dataset.mode);
     syncDocumentModes();
     if (!zoomView.classList.contains("hidden")) renderZoomImage();
-  });
+  }));
 
   $("btnCopy").addEventListener("click", async () => {
     try { await imageEditor.copy(); }
