@@ -75,7 +75,8 @@ body{display:flex;align-items:stretch;justify-content:center;padding:0;min-width
   .preview__toolbar{gap:5px;flex-wrap:wrap;}
   .preview__status{order:1;}
   .preview__actions{order:3;}
-  .document-controls{order:4;flex:1 0 100%;justify-content:center;}
+  .document-controls{order:4;flex:1 0 100%;width:100%;justify-content:center;}
+  .image-view-controls{flex-direction:row;flex-wrap:nowrap;white-space:nowrap;}
   .document-select{width:100px;}
   .result-footer{align-items:stretch;flex-direction:column;gap:12px;}
   .quality-options,.export-actions{width:100%;min-width:0;}
