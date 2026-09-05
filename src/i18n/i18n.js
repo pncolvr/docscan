@@ -41,7 +41,7 @@ export function applyTranslations(){
   document.title = t("app.title");
   document.querySelectorAll("[data-i18n]").forEach(element => { element.textContent = t(element.dataset.i18n); });
   document.querySelectorAll("[data-i18n-aria-label]").forEach(element => { element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel)); });
-  document.querySelectorAll("[data-i18n-title]").forEach(element => { element.setAttribute("title", t(element.dataset.i18nTitle)); });
+  document.querySelectorAll("[data-i18n-title]").forEach(element => { element.removeAttribute("title"); });
   document.querySelectorAll("[data-i18n-tooltip]").forEach(element => { element.dataset.tooltip = t(element.dataset.i18nTooltip); });
 }
 

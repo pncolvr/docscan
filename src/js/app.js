@@ -1,11 +1,13 @@
 import { supported, createCamera } from "./camera.js";
 import { detectFrame, findDocumentQuad, orderQuad } from "./detection.js";
 import { warpToQuad, createImageEditor } from "./image-manipulation.js";
+import { initializeTooltips } from "./tooltips.js";
 import { initTranslations } from "../i18n/i18n.js";
 
  (async () => {
   const $ = id => document.getElementById(id);
   const { t } = await initTranslations({ selector: $("languageSelect") });
+  const tooltips = initializeTooltips();
   const viewStart = $("view-start"), viewCamera = $("view-camera"), viewResult = $("view-result");
   const video = $("video"), sampleCanvas = $("sampleCanvas"), overlaySvg = $("overlaySvg");
   const controls = document.querySelector(".controls");
@@ -18,7 +20,6 @@ import { initTranslations } from "../i18n/i18n.js";
   const AUTO_TOOLTIP_KEY = "scan-auto-tooltip-shown";
   let cvReady = false, capturing = false, autoCapture = true, autoStartedAt = 0;
   const autoHoldMs = 900, autoRing = $("autoring"), autoRingFg = $("autoringFg"), autoButton = $("btnAuto");
-  let autoTooltipTimer = null;
   const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel");
   let zoomScale = 1;
   let documents = [], selectedDocumentIndex = 0;
@@ -132,7 +133,6 @@ import { initTranslations } from "../i18n/i18n.js";
     const message = autoCapture ? t("camera.autoOn") : t("camera.autoOff");
     autoButton.classList.toggle("active", autoCapture);
     autoButton.setAttribute("aria-pressed", String(autoCapture));
-    autoButton.title = message;
     autoButton.setAttribute("aria-label", message);
     autoButton.dataset.tooltip = message;
     try { localStorage.setItem(AUTO_CAPTURE_KEY, String(autoCapture)); } catch(error){ }
@@ -143,13 +143,14 @@ import { initTranslations } from "../i18n/i18n.js";
       if (localStorage.getItem(AUTO_TOOLTIP_KEY) === "true") return;
       localStorage.setItem(AUTO_TOOLTIP_KEY, "true");
     } catch(error){ }
-    if (autoTooltipTimer) clearTimeout(autoTooltipTimer);
-    autoButton.classList.add("tooltip-visible");
-    autoTooltipTimer = setTimeout(() => autoButton.classList.remove("tooltip-visible"), 10000);
+    tooltips.showOnceFor(autoButton, 10000);
   }
 
   updateAutoButton();
-  $("languageSelect").addEventListener("languagechange", updateAutoButton);
+  $("languageSelect").addEventListener("languagechange", () => {
+    updateAutoButton();
+    tooltips.refresh();
+  });
 
   function showView(view){
     [viewStart, viewCamera, viewResult].forEach(section => section.classList.add("hidden"));
