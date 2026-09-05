@@ -46,6 +46,7 @@
 .document-delete-controls{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;align-items:center;justify-content:center;gap:6px;padding:5px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(20,23,28,.82);backdrop-filter:blur(6px);}
 .document-delete{position:static;width:36px;height:36px;flex:0 0 36px;}
 .document-delete i{font-size:16px;}
+.document-delete.delete-confirm{background:var(--bad);border-color:var(--bad);color:#fff;}
 .document-select{width:132px;padding:7px 8px;border:1px solid var(--border);border-radius:9px;background:var(--panel-2);color:var(--text);font-size:11px;text-align:center;}
 .document-select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .document-action{width:30px;height:30px;flex:0 0 30px;}
@@ -68,6 +69,8 @@
 .btn-share{grid-column:1 / -1;}
 select.deviceselect{width:100%;margin-top:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:10px;font-size:12.5px;font-family:inherit;}
 .error{margin-top:12px;background:rgba(226,96,79,.1);border:1px solid rgba(226,96,79,.35);color:#f3a99e;padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.5;display:none;}.error.show{display:block;}
-.app-tooltip{position:fixed;z-index:1000;max-width:min(240px,calc(100vw - 24px));padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--text);box-shadow:0 8px 18px rgba(0,0,0,.28);font:500 11px/1.35 ui-sans-serif,system-ui,sans-serif;text-align:center;white-space:normal;overflow-wrap:anywhere;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .15s ease,visibility .15s ease;}
+.app-tooltip{position:fixed;z-index:1000;max-width:min(240px,calc(100vw - 24px));padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--text);box-shadow:0 8px 18px rgba(0,0,0,.28);font:500 11px/1.35 ui-sans-serif,system-ui,sans-serif;text-align:center;white-space:pre-line;overflow-wrap:anywhere;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .15s ease,visibility .15s ease;}
+.app-tooltip-persistent{z-index:1002;}
+.app-tooltip-hover{z-index:1001;}
 .app-tooltip.visible{opacity:1;visibility:visible;}
 .app-tooltip > div{position:absolute;width:8px;height:8px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--panel);transform:rotate(45deg);}

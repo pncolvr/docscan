@@ -46,6 +46,7 @@
   "documents.addTooltip": "Capturar otra página.",
   "documents.delete": "Eliminar página",
   "documents.deleteTooltip": "Eliminar la página seleccionada.",
+  "documents.deleteConfirm": "Haz clic de nuevo para confirmar la eliminación.\nHaz clic en otro lugar para cancelar.",
   "documents.moveUp": "Mover página hacia arriba",
   "documents.moveUpTooltip": "Mover la página seleccionada a una posición anterior en el PDF.",
   "documents.moveDown": "Mover página hacia abajo",

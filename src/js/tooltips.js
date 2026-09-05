@@ -1,76 +1,105 @@
 import { arrow, autoUpdate, computePosition, flip, offset, shift } from "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.13/+esm";
 
-export function initializeTooltips(){
-  const tooltip = document.createElement("div");
+function createTooltip(layer){
+  const element = document.createElement("div");
   const tooltipArrow = document.createElement("div");
-  tooltip.className = "app-tooltip";
-  tooltip.setAttribute("role", "tooltip");
-  tooltip.append(tooltipArrow);
-  document.body.append(tooltip);
+  element.className = `app-tooltip app-tooltip-${layer}`;
+  element.setAttribute("role", "tooltip");
+  element.append(tooltipArrow);
+  document.body.append(element);
+  return { element, tooltipArrow, reference:null, cleanup:null, hideTimer:null };
+}
 
-  let reference = null;
-  let cleanup = null;
-  let hideTimer = null;
+export function initializeTooltips(){
+  const persistentTooltip = createTooltip("persistent");
+  const hoverTooltip = createTooltip("hover");
+  const states = new WeakMap();
 
-  function hide(){
-    if (hideTimer) clearTimeout(hideTimer);
-    if (cleanup) cleanup();
-    cleanup = null;
-    reference = null;
-    tooltip.classList.remove("visible");
-  }
-
-  async function update(){
-    if (!reference) return;
-    const result = await computePosition(reference, tooltip, {
-      placement:"top",
+  async function update(state){
+    if (!state.reference) return;
+    const result = await computePosition(state.reference, state.element, {
+      placement:state.reference.dataset.tooltipPlacement || "top",
       strategy:"fixed",
-      middleware:[offset(10), flip({ padding:12 }), shift({ padding:12 }), arrow({ element:tooltipArrow, padding:8 })]
+      middleware:[offset(10), flip({ padding:12 }), shift({ padding:12 }), arrow({ element:state.tooltipArrow, padding:8 })]
     });
-    if (!reference) return;
-    Object.assign(tooltip.style, { left:`${result.x}px`, top:`${result.y}px` });
+    if (!state.reference) return;
+    Object.assign(state.element.style, { left:`${result.x}px`, top:`${result.y}px` });
     const arrowData = result.middlewareData.arrow || {};
     const side = result.placement.split("-")[0];
-    tooltipArrow.style.left = arrowData.x == null ? "" : `${arrowData.x}px`;
-    tooltipArrow.style.top = arrowData.y == null ? "" : `${arrowData.y}px`;
-    tooltipArrow.style.right = "";
-    tooltipArrow.style.bottom = "";
-    if (side === "top") tooltipArrow.style.bottom = "-4px";
-    if (side === "bottom") tooltipArrow.style.top = "-4px";
-    if (side === "left") tooltipArrow.style.right = "-4px";
-    if (side === "right") tooltipArrow.style.left = "-4px";
+    state.tooltipArrow.style.left = arrowData.x == null ? "" : `${arrowData.x}px`;
+    state.tooltipArrow.style.top = arrowData.y == null ? "" : `${arrowData.y}px`;
+    state.tooltipArrow.style.right = "";
+    state.tooltipArrow.style.bottom = "";
+    if (side === "top") state.tooltipArrow.style.bottom = "-4px";
+    if (side === "bottom") state.tooltipArrow.style.top = "-4px";
+    if (side === "left") state.tooltipArrow.style.right = "-4px";
+    if (side === "right") state.tooltipArrow.style.left = "-4px";
   }
 
-  function show(element){
-    const content = element.dataset.tooltip || "";
+  function hideState(state){
+    if (state.hideTimer) clearTimeout(state.hideTimer);
+    if (state.cleanup) state.cleanup();
+    state.hideTimer = null;
+    state.cleanup = null;
+    state.reference = null;
+    state.element.classList.remove("visible");
+  }
+
+  function showState(state, reference, content){
     if (!content) return;
-    if (reference !== element) hide();
-    reference = element;
-    tooltip.textContent = content;
-    tooltip.append(tooltipArrow);
-    tooltip.classList.add("visible");
-    cleanup = autoUpdate(reference, tooltip, update);
-    update();
+    state.reference = reference;
+    state.element.textContent = content;
+    state.element.append(state.tooltipArrow);
+    state.element.classList.add("visible");
+    if (state.cleanup) state.cleanup();
+    state.cleanup = autoUpdate(reference, state.element, () => update(state));
+    update(state);
+  }
+
+  function setState(element, content, mode = "hover"){
+    if (mode === "persistent" && persistentTooltip.hideTimer){
+      clearTimeout(persistentTooltip.hideTimer);
+      persistentTooltip.hideTimer = null;
+    }
+    states.set(element, { content, mode });
+    element.dataset.tooltip = content;
+    if (mode === "persistent") showState(persistentTooltip, element, content);
+    if (mode === "hidden") hideState(persistentTooltip);
   }
 
   document.querySelectorAll("[data-i18n-tooltip]").forEach(element => {
-    element.addEventListener("mouseenter", () => show(element));
-    element.addEventListener("mouseleave", hide);
-    element.addEventListener("focusin", () => show(element));
-    element.addEventListener("focusout", hide);
+    states.set(element, { content:element.dataset.tooltip || "", mode:"hover" });
+    element.addEventListener("mouseenter", () => {
+      const state = states.get(element);
+      if (state?.mode === "hover") showState(hoverTooltip, element, state.content);
+    });
+    element.addEventListener("mouseleave", () => hideState(hoverTooltip));
   });
 
   return {
     refresh(){
-      if (!reference) return;
-      tooltip.textContent = reference.dataset.tooltip || "";
-      tooltip.append(tooltipArrow);
-      update();
+      [persistentTooltip, hoverTooltip].forEach(state => {
+        if (!state.reference) return;
+        const content = states.get(state.reference)?.content || state.reference.dataset.tooltip || "";
+        state.element.textContent = content;
+        state.element.append(state.tooltipArrow);
+        update(state);
+      });
     },
     showOnceFor(element, duration){
-      show(element);
-      if (hideTimer) clearTimeout(hideTimer);
-      hideTimer = setTimeout(hide, duration);
+      setState(element, element.dataset.tooltip || "", "persistent");
+      if (persistentTooltip.hideTimer) clearTimeout(persistentTooltip.hideTimer);
+      persistentTooltip.hideTimer = setTimeout(() => {
+        setState(element, element.dataset.tooltip || "", "hover");
+        hideState(persistentTooltip);
+      }, duration);
+    },
+    showPersistent(element, content){
+      setState(element, content, "persistent");
+    },
+    setState,
+    hide(){
+      hideState(persistentTooltip);
     }
   };
 }

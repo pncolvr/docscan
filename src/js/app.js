@@ -23,6 +23,7 @@ import { initTranslations } from "../i18n/i18n.js";
   const zoomView = $("zoomView"), zoomCanvas = $("zoomCanvas"), zoomLevel = $("zoomLevel");
   let zoomScale = 1;
   let documents = [], selectedDocumentIndex = 0;
+  let deletePending = false;
 
   const imageEditor = createImageEditor({ resultCanvas: $("resultCanvas") });
 
@@ -135,6 +136,7 @@ import { initTranslations } from "../i18n/i18n.js";
     autoButton.setAttribute("aria-pressed", String(autoCapture));
     autoButton.setAttribute("aria-label", message);
     autoButton.dataset.tooltip = message;
+    tooltips.setState(autoButton, message, "hover");
     try { localStorage.setItem(AUTO_CAPTURE_KEY, String(autoCapture)); } catch(error){ }
   }
 
@@ -303,7 +305,29 @@ import { initTranslations } from "../i18n/i18n.js";
     updateDocumentControls();
     $("documentSelect").value = String(selectedDocumentIndex);
   });
-  $("btnDeleteDocument").addEventListener("click", () => {
+  const deleteButton = $("btnDeleteDocument");
+  function cancelDelete(){
+    if (!deletePending) return;
+    deletePending = false;
+    deleteButton.classList.remove("delete-confirm");
+    deleteButton.dataset.tooltip = t("documents.deleteTooltip");
+    tooltips.setState(deleteButton, t("documents.deleteTooltip"), "hover");
+    tooltips.hide();
+  }
+  document.addEventListener("pointerdown", event => {
+    if (deletePending && !event.target.closest("#btnDeleteDocument")) cancelDelete();
+  });
+  deleteButton.addEventListener("click", () => {
+    if (!deletePending){
+      deletePending = true;
+      deleteButton.classList.add("delete-confirm");
+      deleteButton.dataset.tooltip = t("documents.deleteConfirm");
+      tooltips.showPersistent(deleteButton, t("documents.deleteConfirm"));
+      return;
+    }
+    deletePending = false;
+    deleteButton.classList.remove("delete-confirm");
+    tooltips.hide();
     const removed = documents.splice(selectedDocumentIndex, 1)[0];
     removed?.mat.delete();
     if (!documents.length){

@@ -46,6 +46,7 @@
   "documents.addTooltip": "Digitalizar outra página.",
   "documents.delete": "Eliminar página",
   "documents.deleteTooltip": "Eliminar a página selecionada.",
+  "documents.deleteConfirm": "Clique novamente para confirmar a eliminação.\nClique noutro local para cancelar.",
   "documents.moveUp": "Mover página para cima",
   "documents.moveUpTooltip": "Mover a página selecionada para uma posição anterior no PDF.",
   "documents.moveDown": "Mover página para baixo",
