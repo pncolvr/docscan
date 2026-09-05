@@ -72,9 +72,10 @@ body{display:flex;align-items:stretch;justify-content:center;padding:0;min-width
   .zoom-panel{width:100%;height:100%;border:0;border-radius:0;}
   .zoom-toolbar{padding-inline:12px;}
   .document-controls{position:static;transform:none;order:2;}
-  .preview__toolbar{gap:5px;}
+  .preview__toolbar{gap:5px;flex-wrap:wrap;}
   .preview__status{order:1;}
   .preview__actions{order:3;}
+  .document-controls{order:4;flex:1 0 100%;justify-content:center;}
   .document-select{width:100px;}
   .result-footer{align-items:stretch;flex-direction:column;gap:12px;}
   .quality-options,.export-actions{width:100%;min-width:0;}
@@ -82,6 +83,7 @@ body{display:flex;align-items:stretch;justify-content:center;padding:0;min-width
   .enhance-row{min-width:0;gap:5px;}
   .enhance-row button{min-width:0;padding:9px 5px;font-size:11.5px;}
   .export-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto auto;gap:8px;}
+  .export-actions > .single-export,.export-actions > #btnExportPdf,.export-actions > #btnSharePdf{grid-column:1 / -1;}
   .single-export:not(.hidden){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;}
   .single-export label,.single-export .formatselect{grid-row:1;}
   .single-export .formatselect{min-width:0;width:100%;}
