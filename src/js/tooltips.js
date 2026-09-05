@@ -67,14 +67,17 @@ export function initializeTooltips(){
     if (mode === "hidden") hideState(persistentTooltip);
   }
 
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   document.querySelectorAll("[data-i18n-tooltip]").forEach(element => {
     states.set(element, { content:element.dataset.tooltip || "", mode:"hover" });
+    if (!canHover) return;
     element.addEventListener("mouseenter", () => {
       const state = states.get(element);
       if (state?.mode === "hover") showState(hoverTooltip, element, state.content);
     });
     element.addEventListener("mouseleave", () => hideState(hoverTooltip));
   });
+  document.addEventListener("touchstart", () => hideState(hoverTooltip), { passive:true });
 
   return {
     refresh(){
