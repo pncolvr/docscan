@@ -118,7 +118,7 @@ export function orderQuad(flat){
 export function detectFrame({ video, sampleCanvas, onDetected }){
   const width = video.videoWidth, height = video.videoHeight, scale = SAMPLE_W / width;
   sampleCanvas.width = SAMPLE_W; sampleCanvas.height = Math.round(height * scale);
-  sampleCanvas.getContext("2d").drawImage(video, 0, 0, sampleCanvas.width, sampleCanvas.height);
+  sampleCanvas.getContext("2d", { willReadFrequently: true }).drawImage(video, 0, 0, sampleCanvas.width, sampleCanvas.height);
   let mat;
   try { mat = cv.imread(sampleCanvas); } catch(error){ return; }
   const flat = findDocumentQuad(mat); mat.delete();
