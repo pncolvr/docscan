@@ -11,12 +11,13 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
   let detectLoopId = null;
   let lastQuad = null;
   let autofocusReady = false;
+  let generation = 0;
 
   function startDetectLoop(){
     stopDetectLoop();
     if (!window.cv || !window.cv.Mat) return;
     detectLoopId = setInterval(() => {
-      if (!video.videoWidth || isPaused()) return;
+      if (!stream || !video.videoWidth || isPaused()) return;
       onFrame({ video, lastQuad, setQuad: quad => { lastQuad = quad; } });
     }, 220);
   }
@@ -28,20 +29,28 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
   }
 
   async function start(constraintsOverride){
-    await stop();
+    const request = ++generation;
+    await stop(false);
+    if (request !== generation) return;
     autofocusReady = false;
     const base = constraintsOverride || { video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false };
-    stream = await navigator.mediaDevices.getUserMedia(base);
+    let opened;
+    try { opened = await navigator.mediaDevices.getUserMedia(base); }
+    catch(error){ if (request !== generation) return; throw error; }
+    if (request !== generation){ opened.getTracks().forEach(track => track.stop()); return; }
+    stream = opened;
     video.srcObject = stream;
     await video.play();
+    if (request !== generation) return;
     videoTrack = stream.getVideoTracks()[0];
     if (!videoTrack) throw new Error("The camera stream did not provide a video track.");
     const activeTrack = videoTrack;
     try { await activeTrack.applyConstraints({ advanced:[{ focusMode:"continuous" }] }); } catch(error) { }
     await new Promise(resolve => setTimeout(resolve, 1000));
-    if (videoTrack !== activeTrack || activeTrack.readyState === "ended") return;
+    if (request !== generation || videoTrack !== activeTrack || activeTrack.readyState === "ended") return;
     autofocusReady = true;
     const all = await navigator.mediaDevices.enumerateDevices();
+    if (request !== generation) return;
     devices = all.filter(device => device.kind === "videoinput");
     if (!devices.length){
       await stop();
@@ -59,11 +68,13 @@ export function createCamera({ video, deviceSelect, onStatus, onFrame, isPaused 
     startDetectLoop();
   }
 
-  async function stop(){
+  async function stop(cancelPending = true){
+    if (cancelPending) generation++;
     autofocusReady = false;
     stopDetectLoop();
     if (stream){ stream.getTracks().forEach(track => track.stop()); stream = null; }
     videoTrack = null;
+    video.srcObject = null;
   }
 
   async function switchDevice(){

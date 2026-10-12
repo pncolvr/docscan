@@ -20,6 +20,8 @@ python3 serve.py 8000
 
 Then open `http://localhost:8000/index.html` in your browser.
 
+To preview the switch-camera button with one camera, open `http://localhost:8000/index.html?showCameraSwitch=1` and turn on the camera. This parameter works only on localhost or loopback addresses; switching still requires multiple cameras.
+
 ## Tech
 
 Vanilla HTML/CSS/JS, [OpenCV.js](https://docs.opencv.org/4.x/d5/d10/tutorial_js_root.html) for image processing, [pdf-lib](https://pdf-lib.js.org/) for PDF export.

@@ -71,10 +71,15 @@
       <div class="badge mono" id="badge"><span class="badge__dot"></span><span id="badgeText" data-i18n="status.searching">searching</span></div>
     </div>
  
-    <div class="controls single-camera">
-      <button class="iconbtn hidden" id="btnSwitch" data-i18n-title="camera.switch" data-i18n-aria-label="camera.switch" data-i18n-tooltip="camera.switchTooltip">
-        <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i>
-      </button>
+    <div class="controls">
+      <div class="camera-actions">
+        <button class="iconbtn camera-control hidden" id="btnSwitch" data-i18n-title="camera.switch" data-i18n-aria-label="camera.switch" data-i18n-tooltip="camera.switchTooltip">
+          <i class="fa-solid fa-camera-rotate" aria-hidden="true"></i>
+        </button>
+        <button class="iconbtn camera-control" id="btnStop" aria-label="Stop camera" data-i18n-aria-label="camera.stop" data-i18n-tooltip="camera.stop">
+          <i class="fa-solid fa-stop" aria-hidden="true"></i>
+        </button>
+      </div>
       <button class="shutter" id="btnShutter" data-i18n-title="camera.capture" data-i18n-aria-label="camera.capture" data-i18n-tooltip="camera.captureTooltip"></button>
       <button class="iconbtn active" id="btnAuto" aria-pressed="true" data-i18n-title="camera.autoOn" data-i18n-aria-label="camera.autoOn" data-i18n-tooltip="camera.autoOn">
           <i class="fa-solid fa-arrows-rotate" id="autoIcon" aria-hidden="true"></i>

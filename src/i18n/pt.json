@@ -16,6 +16,7 @@
   "status.detecting": "detectando",
   "status.captured": "capturado",
   "camera.switch": "Mudar de câmara",
+  "camera.stop": "Parar câmara",
   "camera.switchTooltip": "Alternar entre as câmaras disponíveis.",
   "camera.capture": "Capturar",
   "camera.captureTooltip": "Capturar o documento agora.",

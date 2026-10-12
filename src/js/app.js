@@ -10,10 +10,11 @@ import { initTranslations } from "../i18n/i18n.js";
   const tooltips = initializeTooltips();
   const viewStart = $("view-start"), viewCamera = $("view-camera"), viewResult = $("view-result");
   const video = $("video"), sampleCanvas = $("sampleCanvas"), overlaySvg = $("overlaySvg");
-  const controls = document.querySelector(".controls");
   const badge = $("badge"), badgeText = $("badgeText");
   const camError = $("camError"), startError = $("startError");
   const switchButton = $("btnSwitch");
+  const showCameraSwitch = ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)
+    && new URLSearchParams(location.search).get("showCameraSwitch") === "1";
   const installButton = $("btnInstall");
   let deferredInstallPrompt = null;
   const AUTO_CAPTURE_KEY = "scan-auto-capture";
@@ -194,8 +195,7 @@ import { initTranslations } from "../i18n/i18n.js";
     isPaused: () => capturing,
     onStatus: ({ deviceCount = 0 } = {}) => {
       const hasMultipleCameras = deviceCount > 1;
-      switchButton.classList.toggle("hidden", !hasMultipleCameras);
-      controls.classList.toggle("single-camera", !hasMultipleCameras);
+      switchButton.classList.toggle("hidden", !hasMultipleCameras && !showCameraSwitch);
       setBadge(false);
       drawOverlay(null, video.videoWidth || 0, video.videoHeight || 0);
     },
@@ -222,8 +222,7 @@ import { initTranslations } from "../i18n/i18n.js";
     const status = supported();
     if (!status.hasMedia) throw new Error(t("camera.unavailable"));
     if (!status.secure) throw new Error(t("camera.insecure"));
-    switchButton.classList.add("hidden");
-    controls.classList.add("single-camera");
+    switchButton.classList.toggle("hidden", !showCameraSwitch);
     showView(viewCamera);
     showAutoTooltip();
     await camera.start();
@@ -240,11 +239,22 @@ import { initTranslations } from "../i18n/i18n.js";
     }
   });
 
+  $("btnStop").addEventListener("click", async () => {
+    await camera.stop();
+    resetAutoProgress();
+    drawOverlay(null, video.videoWidth || 100, video.videoHeight || 100);
+    camError.classList.remove("show");
+    tooltips.hide();
+    showView(documents.length ? viewResult : viewStart);
+    $(documents.length ? "btnAddDocument" : "btnStart").focus();
+  });
+
   async function capture(){
     if (capturing || !video.videoWidth || !video.videoHeight) return;
     capturing = true;
     resetAutoProgress();
     $("btnShutter").disabled = true;
+    $("btnStop").disabled = true;
     badgeText.textContent = t("status.detecting");
     badge.classList.add("found");
 
@@ -282,6 +292,7 @@ import { initTranslations } from "../i18n/i18n.js";
     showView(viewResult);
     capturing = false;
     $("btnShutter").disabled = false;
+    $("btnStop").disabled = false;
   }
 
   $("btnShutter").addEventListener("click", capture);

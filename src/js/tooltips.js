@@ -70,12 +70,16 @@ export function initializeTooltips(){
   const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   document.querySelectorAll("[data-i18n-tooltip]").forEach(element => {
     states.set(element, { content:element.dataset.tooltip || "", mode:"hover" });
-    if (!canHover) return;
-    element.addEventListener("mouseenter", () => {
+    const showHover = () => {
       const state = states.get(element);
       if (state?.mode === "hover") showState(hoverTooltip, element, state.content);
-    });
-    element.addEventListener("mouseleave", () => hideState(hoverTooltip));
+    };
+    element.addEventListener("focus", showHover);
+    element.addEventListener("blur", () => hideState(hoverTooltip));
+    if (canHover){
+      element.addEventListener("mouseenter", showHover);
+      element.addEventListener("mouseleave", () => hideState(hoverTooltip));
+    }
   });
   document.addEventListener("touchstart", () => hideState(hoverTooltip), { passive:true });
 
@@ -107,6 +111,7 @@ export function initializeTooltips(){
     setState,
     hide(){
       hideState(persistentTooltip);
+      hideState(hoverTooltip);
     }
   };
 }
