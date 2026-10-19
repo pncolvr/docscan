@@ -70,5 +70,7 @@
   "result.downloadTooltip": "Save the document in the selected format.",
   "result.share": "Share",
   "result.shareTooltip": "Share the document using your device's native share menu.",
-  "footer.local": "runs locally in your browser - nothing is uploaded"
+  "footer.local": "runs locally in your browser - nothing is uploaded",
+  "support.coffee": "Finding this useful? You can support this project.",
+  "support.coffeeLabel": "Support this project on Buy Me a Coffee (opens in a new tab)"
 }

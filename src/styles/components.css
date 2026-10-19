@@ -1,4 +1,12 @@
 .single-export{display:flex;align-items:center;gap:10px;}
+.coffee-link{display:none;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;min-height:32px;padding:4px 0;border:0;background:transparent;color:var(--muted);font:500 11px/1.2 ui-sans-serif,system-ui,sans-serif;text-decoration:none;transition:color .15s ease;}
+.coffee-link__icon{display:block;flex:0 0 auto;width:17px;height:24px;object-fit:contain;}
+.coffee-link:hover{color:var(--accent);}
+.coffee-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+#view-result:not(.hidden) ~ .app-footer .coffee-link{display:inline-flex;animation:coffee-fade-in .7s ease-out .2s both;}
+@keyframes coffee-fade-in{from{opacity:0;}to{opacity:1;}}
+@media (prefers-reduced-motion:reduce){#view-result:not(.hidden) ~ .app-footer .coffee-link{animation:none;}}
+@media (max-width:700px){.coffee-link{width:44px;min-height:44px;padding:6px;}.coffee-link__text{display:none;}}
 .single-export.hidden{display:none !important;}
 #btnShare[hidden],#btnSharePdf[hidden]{display:none !important;}
 .installbtn{display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid var(--border);border-radius:9px;background:var(--panel-2);color:var(--text);font:500 11px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;}
@@ -40,7 +48,7 @@
 .controls .iconbtn:focus-visible{outline:2px solid var(--accent);outline-offset:4px;}
 .camera-control{background:var(--panel-2);border-color:var(--border);color:var(--text);transition:transform .1s ease,border-color .15s ease,background .15s ease,opacity .15s ease;}
 .camera-control i{font-size:18px;}
-.shutter{justify-self:center;width:68px;height:68px;border-radius:50%;background:var(--text);border:4px solid var(--panel);outline:2px solid var(--border);cursor:pointer;transition:transform .1s ease;}.shutter:active{transform:scale(.92);}.shutter:disabled{opacity:.35;cursor:not-allowed;}
+.shutter{appearance:none;color-scheme:only light;justify-self:center;width:68px;height:68px;border-radius:50%;background:#fff url("../assets/images/shutter.svg") center/100% 100% no-repeat;border:4px solid var(--panel);outline:2px solid var(--border);cursor:pointer;transition:transform .1s ease;}.shutter:active{transform:scale(.92);}.shutter:disabled{opacity:.35;cursor:not-allowed;}
 .preview__toolbar{min-height:48px;padding:6px 8px;border-bottom:1px solid var(--border);background:rgba(20,23,28,.86);}
 .preview__status{display:flex;align-items:center;gap:8px;flex:0 0 auto;min-width:max-content;}
 .preview__actions{display:flex;align-items:center;gap:6px;}

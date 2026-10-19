@@ -11,8 +11,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <link rel="stylesheet" href="styles/base.css?v=15">
-<link rel="stylesheet" href="styles/layout.css?v=15">
-<link rel="stylesheet" href="styles/components.css?v=15">
+<link rel="stylesheet" href="styles/layout.css?v=17">
+<link rel="stylesheet" href="styles/components.css?v=20">
 </head>
 <body>
  
@@ -194,7 +194,13 @@
     </div>
   </div>
  
-  <p class="foot mono" data-i18n="footer.local">runs locally in your browser - nothing is uploaded</p>
+  <footer class="app-footer">
+    <p class="foot mono" data-i18n="footer.local">runs locally in your browser - nothing is uploaded</p>
+    <a class="coffee-link" href="https://www.buymeacoffee.com/pncolvr" target="_blank" rel="noopener noreferrer" aria-label="Support this project on Buy Me a Coffee (opens in a new tab)" data-i18n-aria-label="support.coffeeLabel">
+      <span class="coffee-link__text" data-i18n="support.coffee">Finding this useful? You can support this project.</span>
+      <img class="coffee-link__icon" src="assets/images/coffee.svg" width="17" height="24" alt="" aria-hidden="true">
+    </a>
+  </footer>
 </div>
  
 <script src="https://docs.opencv.org/4.9.0/opencv.js" async></script>

@@ -70,5 +70,7 @@
   "result.downloadTooltip": "Guardar o documento no formato selecionado.",
   "result.share": "Partilhar",
   "result.shareTooltip": "Partilhar o documento utilizando o menu nativo do dispositivo.",
-  "footer.local": "executado localmente no navegador - nada é carregado"
+  "footer.local": "executado localmente no navegador - nada é carregado",
+  "support.coffee": "Está a ser útil? Pode apoiar este projeto.",
+  "support.coffeeLabel": "Apoie este projeto no Buy Me a Coffee (abre num novo separador)"
 }
